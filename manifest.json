@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "TOS Summarizer",
+  "version": "1.0.0",
+  "description": "Analyzes the terms of service and summarizes it so you know what data gets collected from you.",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "icon-32.png"
+  },
+  "permissions": ["activeTab", "scripting"]
+}
