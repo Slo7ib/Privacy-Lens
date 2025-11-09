@@ -1,1 +1,28 @@
 @import "tailwindcss";
+/* Custom glow for the heading to make the cyan feel luminous */
+.glow-text {
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5); /* Subtle Cyan glow */
+}
+
+/* --- Custom CSS for the Slash-Like Border --- */
+.slash-panel {
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.4); /* Darker panel BG for contrast */
+  z-index: 20;
+}
+
+.slash-panel::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  /* Adjusted overlap and width for the smaller size */
+  right: -6px;
+  width: 12px;
+  height: 100%;
+  /* Light refraction effect */
+  background: rgba(255, 255, 255, 0.15);
+  /* The key: skewing the element to create the diagonal/slash look */
+  transform: skewX(-5deg);
+  z-index: 30;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.6);
+}

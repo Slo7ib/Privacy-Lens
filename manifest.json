@@ -4,8 +4,7 @@
   "version": "1.0.0",
   "description": "Analyzes the terms of service and summarizes it so you know what data gets collected from you.",
   "action": {
-    "default_popup": "index.html",
-    "default_icon": "vite.svg"
+    "default_popup": "index.html"
   },
   "permissions": ["activeTab", "scripting"],
 
