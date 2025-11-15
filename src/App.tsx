@@ -2,6 +2,7 @@
 
 import Body from "./components/Body";
 import Cards from "./components/Cards";
+import ChangeBackgroundButton from "./components/ChangeBackgroundButton";
 
 //     Action: Contains a button that, when clicked, sends a message to the browser's API to run the content script.
 
@@ -26,6 +27,7 @@ const App = () => {
         </h1>
       </header>
       <Body />
+      <ChangeBackgroundButton />
     </div>
   );
 };
