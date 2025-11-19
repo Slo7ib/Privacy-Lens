@@ -1,14 +1,48 @@
 import React from "react";
 interface ChangeBackgroundButtonProps {}
 const ChangeBackgroundButton: React.FC = () => {
+  const policyFind = () => {
+    const foundPolicy = Array.from(document.querySelectorAll("a")).find((a) =>
+      a.textContent?.toLowerCase().includes("privacy policy"),
+    );
+
+    let result = {
+      found: false,
+      url: "",
+      text: "",
+    };
+
+    if (foundPolicy instanceof HTMLAnchorElement) {
+      console.log("Found Policy Link successfully:", foundPolicy.href);
+      result.found = true;
+      result.url = foundPolicy.href;
+      result.text = foundPolicy.textContent;
+    } else {
+      console.log("cant find");
+    }
+    return result;
+  };
+
   const gettingTab = async () => {
     let queryOptions: chrome.tabs.QueryInfo = {
       active: true,
       lastFocusedWindow: true,
     };
-    let [tab] = await chrome.tabs.query(queryOptions);
-    console.log(tab);
-    return tab;
+    let [currentTab] = await chrome.tabs.query(queryOptions);
+
+    if (currentTab?.id) {
+      chrome.scripting
+        .executeScript({
+          target: { tabId: currentTab.id },
+          func: policyFind,
+        })
+        .then((policy) => {
+          console.log("success");
+        });
+    } else {
+      console.error("failing");
+    }
+    return currentTab;
   };
 
   return (
