@@ -1,28 +1,9 @@
 import React from "react";
+// The policy find is a function to search for the privacy ploicy and then send it to a background worker to do the heavy work.
+import { policyFind } from "../utils/policyFinder";
 interface ChangeBackgroundButtonProps {}
 const ChangeBackgroundButton: React.FC = () => {
-  const policyFind = () => {
-    const foundPolicy = Array.from(document.querySelectorAll("a")).find((a) =>
-      a.textContent?.toLowerCase().includes("privacy policy"),
-    );
-
-    let result = {
-      found: false,
-      url: "",
-      text: "",
-    };
-
-    if (foundPolicy instanceof HTMLAnchorElement) {
-      console.log("Found Policy Link successfully:", foundPolicy.href);
-      result.found = true;
-      result.url = foundPolicy.href;
-      result.text = foundPolicy.textContent;
-    } else {
-      console.log("cant find");
-    }
-    return result;
-  };
-
+  // This function will find the current active tab, and do chrome.scripting on it, avoiding having to require too many unncessary permissons through Content Script
   const gettingTab = async () => {
     let queryOptions: chrome.tabs.QueryInfo = {
       active: true,
@@ -36,11 +17,11 @@ const ChangeBackgroundButton: React.FC = () => {
           target: { tabId: currentTab.id },
           func: policyFind,
         })
-        .then((policy) => {
-          console.log("success");
+        .then(() => {
+          console.log("Script successfully executed");
         });
     } else {
-      console.error("failing");
+      console.error("Script failed");
     }
     return currentTab;
   };
