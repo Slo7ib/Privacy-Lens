@@ -10,15 +10,35 @@ const ChangeBackgroundButton: React.FC = () => {
     };
     let [currentTab] = await chrome.tabs.query(queryOptions);
     const policyFind = () => {
-      const keywords = ["privacy policy", "data policy", "privacy notice"];
+      // 1. Define a list of common, relevant keywords
+      const KEYWORDS = [
+        "privacy policy",
+        "terms of service",
+        "terms and conditions",
+        "terms of use",
+        "legal notice",
+        "data policy",
+        "imprint",
+        "cookie policy",
+        "privacy",
+      ];
 
-      const selector = "a, button, [role='link]";
+      // 2. Broaden the selector to include common interactive elements
+      // We include <a>, <button>, and any element with a specific role like 'link'
+      const SELECTOR = "a, button, [role='link']";
 
-      const allPossibleLinks = document.querySelectorAll(selector);
+      // Also query divs and spans that are often used for footers, but be careful of performance.
+      // We'll stick to a more precise selector for better performance first.
+      const allPossibleLinks = document.querySelectorAll(SELECTOR);
 
-      const foundPolicy = Array.from(document.querySelectorAll("a")).find((a) =>
-        a.textContent?.toLowerCase().includes("privacy policy"),
-      );
+      // 3. Find the first element whose text content contains any of the keywords
+      const foundElement = Array.from(allPossibleLinks).find((el) => {
+        // Get the element's text content, convert to lowercase, and check if it's truthy
+        const text = el.textContent?.toLowerCase();
+
+        // Check if the element's text includes ANY of the keywords
+        return text && KEYWORDS.some((keyword) => text.includes(keyword));
+      });
 
       let result = {
         found: false,
@@ -26,14 +46,25 @@ const ChangeBackgroundButton: React.FC = () => {
         text: "",
       };
 
-      if (foundPolicy instanceof HTMLAnchorElement) {
-        console.log("Found Policy Link successfully:", foundPolicy.href);
+      if (foundElement) {
+        // If it's an anchor element, get the href directly
+        if (
+          foundElement.tagName === "A" &&
+          foundElement instanceof HTMLAnchorElement
+        ) {
+          result.url = foundElement.href;
+        } else {
+          // If it's a button or other non-anchor element, the URL may not be available.
+          // You could check for data-attributes or parent anchors here if needed.
+          result.url = "N/A (Not an <a> tag)";
+        }
+
         result.found = true;
-        result.url = foundPolicy.href;
-        result.text = foundPolicy.textContent;
+        result.text = foundElement.textContent.trim();
       } else {
-        console.log("cant find");
+        // console.log("Can't find policy/terms link using broad search.");
       }
+
       return result;
     };
 
