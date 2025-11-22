@@ -1,6 +1,5 @@
 import React from "react";
 
-interface ChangeBackgroundButtonProps {}
 const ChangeBackgroundButton: React.FC = () => {
   // This function will find the current active tab, and do chrome.scripting on it, avoiding having to require too many unncessary permissons through Content Script
   const gettingTab = async () => {
@@ -74,14 +73,14 @@ const ChangeBackgroundButton: React.FC = () => {
           target: { tabId: currentTab.id },
           func: policyFind,
         });
-        const resultFromWebpage = injectionResults[0].result;
+        const privacyPageData = injectionResults[0].result;
 
         chrome.runtime.sendMessage({
           type: "POLICY_RESULT",
-          data: resultFromWebpage,
+          data: privacyPageData,
           tabId: currentTab.id,
         });
-        console.log("Result sent to Service Worker:", resultFromWebpage);
+        console.log("Result sent to Service Worker:", privacyPageData);
       } catch (error) {
         console.error("Script execution failed:", error);
       }
