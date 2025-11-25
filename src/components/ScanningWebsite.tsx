@@ -1,6 +1,6 @@
 import React from "react";
 
-const ChangeBackgroundButton: React.FC = () => {
+const ScanningWebsite: React.FC = () => {
   // This function will find the current active tab, and do chrome.scripting on it, avoiding having to require too many unncessary permissons through Content Script
   const gettingTab = async () => {
     let queryOptions: chrome.tabs.QueryInfo = {
@@ -101,4 +101,4 @@ const ChangeBackgroundButton: React.FC = () => {
   );
 };
 
-export default ChangeBackgroundButton;
+export default ScanningWebsite;
