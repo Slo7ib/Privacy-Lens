@@ -22,3 +22,4 @@ export const IconCircle: React.FC<IconCircleProps> = ({ icon, label }) => {
     </div>
   );
 };
+

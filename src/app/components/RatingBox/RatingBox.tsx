@@ -27,3 +27,4 @@ function RatingBox() {
   );
 }
 export default RatingBox;
+

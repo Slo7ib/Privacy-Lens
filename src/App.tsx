@@ -1,7 +1,7 @@
-import RatingBox from "./components/RatingBox";
-import ScanningWebsite from "./components/ScanningWebsite";
-import Header from "./components/Header";
-import Cards from "./components/Cards";
+import RatingBox from "./app/components/RatingBox/RatingBox";
+import ScanningWebsite from "./app/components/ScannerButton/ScannerButton";
+import Header from "./app/components/Header/Header";
+import Cards from "./app/components/Cards/Cards";
 
 const App = () => {
   return (

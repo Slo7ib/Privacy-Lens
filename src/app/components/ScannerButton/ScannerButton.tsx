@@ -1,6 +1,6 @@
 import React from "react";
 
-const ScanningWebsite: React.FC = () => {
+const ScannerButton: React.FC = () => {
   // This function will find the current active tab, and do chrome.scripting on it, avoiding having to require too many unncessary permissons through Content Script
   const gettingTab = async () => {
     let queryOptions: chrome.tabs.QueryInfo = {
@@ -101,4 +101,5 @@ const ScanningWebsite: React.FC = () => {
   );
 };
 
-export default ScanningWebsite;
+export default ScannerButton;
+

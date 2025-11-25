@@ -3,3 +3,4 @@
 //     Action: Finds the T&C text (e.g., scraping the DOM), pre-processes it, and sends it to your AI backend for analysis.
 
 //     Tech: Plain TypeScript/JavaScript.
+

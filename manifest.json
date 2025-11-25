@@ -12,12 +12,12 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["src/contentScript.ts"]
+      "js": ["src/extension/contentScript.ts"]
     }
   ],
   "host_permissions": ["<all_urls>"],
   "background": {
-    "service_worker": "src/background.ts",
+    "service_worker": "src/extension/background.ts",
     "type": "module"
   }
 }
