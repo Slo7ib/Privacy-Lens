@@ -35,8 +35,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
       console.log("[background] received payload:", { found, url, text });
 
-      // simulate async work
-      await new Promise((res) => setTimeout(res, 500));
+      // This function will grab the privacy policy url and make a request to read its page and send it back to us.
+      async function fethcingPageData(url: string) {
+        try {
+          const response = await fetch(url);
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const rawText = await response.text();
+
+          console.log(rawText);
+
+          return rawText;
+        } catch (error) {
+          console.error(`Failed to fetch the rawText ${error}`);
+        }
+      }
 
       const result = {
         status: "Success",
@@ -44,6 +60,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         url,
         text,
         greeting: `Hello from background, got: ${url} (found=${found})`,
+        final: fethcingPageData(url),
       };
 
       // If we have the sender tab id, send a follow-up message there.

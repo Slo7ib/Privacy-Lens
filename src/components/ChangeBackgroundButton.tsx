@@ -18,7 +18,6 @@ const ChangeBackgroundButton: React.FC = () => {
         "legal notice",
         "data policy",
         "imprint",
-        "cookie policy",
         "privacy",
       ];
 
