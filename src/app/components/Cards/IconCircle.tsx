@@ -2,7 +2,6 @@ import React from "react";
 
 interface IconCircleProps {
   icon: React.ReactNode;
-  /** Optional small label to show under the icon on hover */
   label?: string;
 }
 
@@ -22,4 +21,3 @@ export const IconCircle: React.FC<IconCircleProps> = ({ icon, label }) => {
     </div>
   );
 };
-
