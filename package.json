@@ -16,8 +16,7 @@
     "lucide-react": "^0.553.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "tailwindcss": "^4.1.17",
-    "turndown": "^7.2.2"
+    "tailwindcss": "^4.1.17"
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.2.1",
