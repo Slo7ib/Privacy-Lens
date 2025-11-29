@@ -1,7 +1,11 @@
 const Header = () => {
   return (
     <header className="flex justify-center">
-      <img src="/src/public/vite.svg" alt="" />
+      <img
+        className="size-16 justify-center self-center"
+        src="/src/extension/assets/icon-128.png"
+        alt=""
+      />
       <h1 className="glow-text p-3.5 text-center text-3xl font-medium tracking-wider text-nowrap text-cyan-300">
         Privacy Lens
       </h1>
@@ -10,4 +14,3 @@ const Header = () => {
 };
 
 export default Header;
-
