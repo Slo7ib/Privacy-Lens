@@ -1,17 +1,22 @@
 import { IconCircle } from "./IconCircle";
-import {
-  Phone,
-  KeyRound,
-  UserRound,
-  Mail,
-  History,
-  Link,
-  Cookie,
-  HouseWifi,
-  MonitorSmartphone,
-} from "lucide-react";
+import { collectedCategories } from "../../../logic/classifyData";
 
 function Cards() {
+  function renderIcons(sectionName: string) {
+    return collectedCategories.map((e) => {
+      const Icon = e.icon;
+      if (e.section === sectionName && e.collected === true) {
+        return (
+          <IconCircle
+            label={`Collects ${e.element}`}
+            icon={<Icon size={24} color="#ffdd00" />}
+          />
+        );
+      }
+      return null;
+    });
+  }
+
   return (
     <div className="mt-3.5 w-full max-w-lg p-0 px-8 text-center text-gray-100 sm:p-10">
       <div className="mt-2 flex flex-col space-y-2.5">
@@ -20,22 +25,7 @@ function Cards() {
             🛡️ Personal Identifiers
           </h3>
           <ul className="my-4 flex flex-row justify-center space-x-6">
-            <IconCircle
-              label="Collects Email"
-              icon={<Mail size={24} color="#ffdd00" />}
-            />
-            <IconCircle
-              label="Collects Personal Information"
-              icon={<UserRound size={24} color="#ffdd00" />}
-            />
-            <IconCircle
-              label="Collects Phone number"
-              icon={<Phone size={24} color="#ffdd00" />}
-            />
-            <IconCircle
-              label="Collects Account Credentials"
-              icon={<KeyRound size={24} color="#ffdd00" />}
-            />
+            {renderIcons("Personal Identifiers")}
           </ul>
 
           {/* Online Activity section */}
@@ -44,14 +34,7 @@ function Cards() {
               🌐 Online Activity
             </h3>
             <ul className="mt-4 flex flex-row justify-center space-x-6">
-              <IconCircle
-                label="Collects pages viewed"
-                icon={<History size={24} color="#ffdd00" />}
-              />
-              <IconCircle
-                label="Collects links clicked"
-                icon={<Link size={24} color="#ffdd00" />}
-              />
+              {renderIcons("Online Activity")}
             </ul>
           </div>
 
@@ -61,18 +44,7 @@ function Cards() {
               💻 Device Data
             </h3>
             <ul className="my-4 flex flex-row justify-center space-x-6">
-              <IconCircle
-                label="Collects IP Address"
-                icon={<HouseWifi size={24} color="#ffdd00" />}
-              />
-              <IconCircle
-                label="Collects Device Type"
-                icon={<MonitorSmartphone size={24} color="#ffdd00" />}
-              />
-              <IconCircle
-                label="Collects Cookie usage"
-                icon={<Cookie size={24} color="#ffdd00" />}
-              />
+              {renderIcons("Device Data")}
             </ul>
           </div>
         </div>

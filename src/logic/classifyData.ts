@@ -19,10 +19,10 @@ export interface CollectedCategory {
   icon: LucideIcon;
 }
 
-const collectedCategories: CollectedCategory[] = [
+export const collectedCategories: CollectedCategory[] = [
   {
     element: "Phone Number",
-    collected: false,
+    collected: true,
     icon: Phone,
     section: "Personal Identifiers",
   },
@@ -34,19 +34,19 @@ const collectedCategories: CollectedCategory[] = [
   },
   {
     element: "Personal Information",
-    collected: false,
+    collected: true,
     icon: UserRound,
     section: "Personal Identifiers",
   },
   {
     element: "Email",
-    collected: false,
+    collected: true,
     icon: Mail,
     section: "Personal Identifiers",
   },
   {
     element: "Links clicked",
-    collected: false,
+    collected: true,
     icon: Link,
     section: "Online Activity",
   },
