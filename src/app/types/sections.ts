@@ -2,7 +2,7 @@
 export const sections = [
   "Personal Identifiers",
   "Online Activity",
-  "Deivce Data",
+  "Device Data",
 ] as const;
 
 export type SectionName = (typeof sections)[number];
