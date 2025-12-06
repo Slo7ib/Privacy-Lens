@@ -23,7 +23,7 @@
       "js": ["src/extension/contentScript.ts"]
     }
   ],
-  "host_permissions": ["<all_urls>"],
+  "host_permissions": ["<all_urls>", "https://openrouter.ai/*"],
   "background": {
     "service_worker": "src/extension/background.ts",
     "type": "module"
