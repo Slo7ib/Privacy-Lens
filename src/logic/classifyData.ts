@@ -46,14 +46,14 @@ export const collectedCategories: CollectedCategory[] = [
   {
     key: 4,
     element: "Email",
-    collected: true,
+    collected: false,
     icon: Mail,
     section: "Personal Identifiers",
   },
   {
     key: 5,
     element: "Links clicked",
-    collected: true,
+    collected: false,
     icon: Link,
     section: "Online Activity",
   },
@@ -67,7 +67,7 @@ export const collectedCategories: CollectedCategory[] = [
   {
     key: 7,
     element: "Cookie usage",
-    collected: true,
+    collected: false,
     icon: Cookie,
     section: "Online Activity",
   },
@@ -81,7 +81,7 @@ export const collectedCategories: CollectedCategory[] = [
   {
     key: 9,
     element: "IP Address",
-    collected: true,
+    collected: false,
     icon: HouseWifi,
     section: "Device Data",
   },

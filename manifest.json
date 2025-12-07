@@ -15,7 +15,7 @@
     "128": "src/extension/assets/icon-128.png"
   },
 
-  "permissions": ["activeTab", "scripting"],
+  "permissions": ["activeTab", "scripting", "storage"],
 
   "content_scripts": [
     {

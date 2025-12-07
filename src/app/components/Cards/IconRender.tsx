@@ -1,10 +1,11 @@
 import { IconCircle } from "./IconCircle";
-import { collectedCategories } from "../../../logic/classifyData";
-
+// import { collectedCategories } from "../../../logic/classifyData";
+import { useCollectedCategories } from "../../hooks/useCollectedCategories";
 function IconsRender({ section }: { section: string }) {
+  const categories = useCollectedCategories();
   return (
     <>
-      {collectedCategories
+      {categories
         .filter((e) => e.section === section && e.collected)
         .map((e) => {
           const Icon = e.icon;
