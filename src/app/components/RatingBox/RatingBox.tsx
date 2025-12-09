@@ -1,4 +1,9 @@
-function RatingBox() {
+interface RatingBoxProps {
+  scan: () => Promise<void>;
+  loading: boolean;
+}
+
+function RatingBox({ scan, loading }: RatingBoxProps) {
   return (
     <div className="card-container relative mx-auto flex h-[180px] w-full max-w-[280px] flex-row justify-center overflow-hidden rounded-xl border border-white/20 bg-white/10 shadow-2xl backdrop-blur-md transition duration-300">
       <div className="slash-panel flex w-2/5 shrink-0 flex-col items-center justify-center p-2">
@@ -19,7 +24,11 @@ function RatingBox() {
           This website collects and cleans your info afterwards
         </p>
 
-        <button className="h-1/4 w-3/4 transform cursor-pointer self-center rounded-md bg-amber-400 px-3 py-1 text-center text-lg font-semibold text-gray-900 shadow-xl transition duration-300 hover:scale-[1.02] hover:bg-amber-500 focus:ring-4 focus:ring-amber-300/50 focus:outline-none">
+        <button
+          onClick={scan}
+          disabled={loading}
+          className="h-1/4 w-3/4 transform cursor-pointer self-center rounded-md bg-amber-400 px-3 py-1 text-center text-lg font-semibold text-gray-900 shadow-xl transition duration-300 hover:scale-[1.02] hover:bg-amber-500 focus:ring-4 focus:ring-amber-300/50 focus:outline-none"
+        >
           Scan
         </button>
       </div>
@@ -27,4 +36,3 @@ function RatingBox() {
   );
 }
 export default RatingBox;
-

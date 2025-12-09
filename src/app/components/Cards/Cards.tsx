@@ -56,7 +56,7 @@ function Cards() {
           </div>
         </div>
         {/* Sharing Info part */}
-        <div className="rounded-2xl border border-white/20 bg-white/0 p-4 text-gray-100 shadow-xl backdrop-blur-md backdrop-brightness-50 backdrop-contrast-100">
+        <div className="mb-1.5 rounded-2xl border border-white/20 bg-white/0 p-4 text-gray-100 shadow-xl backdrop-blur-md backdrop-brightness-50 backdrop-contrast-100">
           {isLoading ? <SkeletonLine /> : <DataSharing />}
         </div>
       </div>

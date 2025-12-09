@@ -4,6 +4,18 @@
   text-shadow: 0 0 8px rgba(56, 189, 248, 0.5); /* Subtle Cyan glow */
 }
 
+/* Fade in animation for Cards */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* --- Custom CSS for the Slash-Like Border --- */
 .slash-panel {
   position: relative;

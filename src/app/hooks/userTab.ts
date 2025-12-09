@@ -4,8 +4,10 @@ import { policyFinder } from "../../logic/policyFinder";
 
 export default function userTab() {
   const [loading, setLoading] = useState(false);
+  const [hasScanned, setHasScanned] = useState(false);
 
   const scan = async () => {
+    setHasScanned(true);
     setLoading(true);
 
     try {
@@ -43,5 +45,5 @@ export default function userTab() {
     setLoading(false);
   };
 
-  return { scan, loading };
+  return { scan, loading, hasScanned };
 }
