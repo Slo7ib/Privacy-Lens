@@ -1,8 +1,8 @@
 // app/components/ScannerButton/ScannerButton.tsx
-import usePrivacyScan from "../../hooks/usePrivacyScan";
+import userTab from "../../hooks/userTab";
 
 function ScannerButton() {
-  const { scan, loading } = usePrivacyScan();
+  const { scan, loading } = userTab();
 
   return (
     <div className="flex flex-col items-center p-4">

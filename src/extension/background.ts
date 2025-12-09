@@ -1,15 +1,15 @@
 import { extractText } from "../logic/extractText";
 import {
-  collectedCategories,
+  dataCollectionItems,
   type CollectedCategory,
 } from "../logic/classifyData";
 
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
-const HUGGINGFACE_API_KEY = "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";
-console.log("[background] service worker loaded");
+// const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
+const HUGGINGFACE_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (msg.type === "POLICY_RESULT") {
+  // Here the service worker recives the privacy policy page's data.
+  if (msg.type === "POLICY_PAGE") {
     const { data, tabId } = msg;
 
     // acknowledge to popup
@@ -41,7 +41,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         rawHTML: html,
         plainText: text,
       };
-      // I will do an AI function to switch classify Data based on the finalPayload text, then i will finally send the response to the pop ui
+      // I will do an AI function to make a new Category list based on the old one
 
       async function aiFunc(payload: {
         messages: Array<{ role: string; content: string }>;
@@ -69,51 +69,43 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         messages: [
           {
             role: "user",
-            content: `You are given this array of objects: ${JSON.stringify(collectedCategories)}
-
-Update ONLY the "collected" property based on the privacy-policy text below.
-
+            content: `Read ${finalPayload.plainText} then Answer with a boolean value (collected) for each of the follwing questions, the answer should ONLY return a JSON array of objects with only two properties ("element" and "collected"). DO NOT CHANGE THE ELEMENTS GIVEN FOR EACH QUESTION, here are the questions and thier corrosponding element ${JSON.stringify(
+              dataCollectionItems.map((item) => {
+                return `question / ${item.question} - element: ${item.element}`;
+              }),
+            )}
 OUTPUT RULES (important):
 - Return ONLY valid JSON
-- Do NOT include backticks
-- Do NOT include explanation
-- Do NOT include markdown formatting
-- Return ONLY a pure JSON array
-
-TEXT:
-${finalPayload.plainText}`,
+- JSON should only have two proprties (collected) which is either (true or false) and element which is strictly connected to the given question
+`,
           },
         ],
         model: "deepseek-ai/DeepSeek-V3.2:novita",
       }).then((response) => {
-        const raw = response.choices[0].message.content;
-        let updatedCategories: CollectedCategory[] = [];
+        const rawAnswers = response.choices[0].message.content;
 
+        let parsedAnswers;
         try {
-          updatedCategories = JSON.parse(raw);
-          // restore icons from original collectedCategories because AI wipes them
-          updatedCategories = updatedCategories.map((aiItem) => {
-            const original = collectedCategories.find(
-              (o) => o.key === aiItem.key,
-            );
-            if (!original) return aiItem as CollectedCategory; // fallback (should never happen)
+          const cleaned = rawAnswers
+            .trim()
+            .replace(/```json/gi, "")
+            .replace(/```/g, "")
+            .trim();
 
-            return {
-              ...original, // copy the original full object (including icon)
-              collected: aiItem.collected, // overwrite only this field
-            };
-          });
+          // optionally remove any text before the first "[" or "{"
+          const jsonStart = cleaned.indexOf("[");
+          const justJson = cleaned.slice(jsonStart);
+
+          parsedAnswers = JSON.parse(justJson);
         } catch (e) {
-          console.error("AI did not return valid JSON:", raw);
-          return;
+          console.error("Invalid JSON from AI", rawAnswers);
         }
-        chrome.storage.local.set({ updatedCategories });
+
         chrome.runtime.sendMessage({
-          type: "UPDATED_CATEGORIES",
-          updatedCategories,
+          type: "ANSWERS",
+          data: parsedAnswers,
         });
       });
-      // I finally got a good json response, now i just need to link it to the pop up ui and do the same thing i did with classify data to render only the true ones
 
       // if message came from popup, send to content script
       if (sender.tab?.id !== undefined) {

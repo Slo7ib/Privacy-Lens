@@ -1,50 +1,34 @@
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import type { CollectedCategory } from "../../logic/classifyData";
-import { collectedCategories as fallbackCategories } from "../../logic/classifyData";
-
-// Helper function to restore icons
-function mergeWithFallback(
-  categoriesFromStorage: Partial<CollectedCategory>[],
-): CollectedCategory[] {
-  return categoriesFromStorage.map((item) => {
-    const original = fallbackCategories.find((o) => o.key === item.key);
-    return {
-      ...(original as CollectedCategory), // Assume original is found
-      collected: item.collected ?? false, // Only update collected status
-    };
-  });
-}
+import {
+  dataCollectionItems,
+  dataCollectionItems as fallbackCategories,
+} from "../../logic/classifyData";
 
 export function useCollectedCategories() {
-  const [categories, setCategories] =
-    useState<CollectedCategory[]>(fallbackCategories);
-
+  const [categories, setCategories] = useState<CollectedCategory[]>([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
-    // Load once on mount
-    chrome.storage.local.get(["updatedCategories"], (res) => {
-      const stored = res.updatedCategories;
+    function handler(msg: any, sender: any, sendResponse: any) {
+      if (msg.type === "ANSWERS") {
+        setCategories(
+          dataCollectionItems.map((item) => {
+            const match = msg.data.find((a: any) => a.element === item.element);
 
-      if (Array.isArray(stored)) {
-        setCategories(mergeWithFallback(stored));
+            return {
+              ...item,
+              collected: match ? match.collected : false,
+            };
+          }),
+        );
+        setLoading(false);
       }
-    });
-
-    // Listen for updates from background
-    const listener = (msg: any) => {
-      if (
-        msg.type === "UPDATED_CATEGORIES" &&
-        Array.isArray(msg.updatedCategories)
-      ) {
-        setCategories(mergeWithFallback(msg.updatedCategories));
-      }
-    };
-
-    chrome.runtime.onMessage.addListener(listener);
-
+    }
+    chrome.runtime.onMessage.addListener(handler);
     return () => {
-      chrome.runtime.onMessage.removeListener(listener);
+      chrome.runtime.onMessage.removeListener(handler);
     };
   }, []);
 
-  return categories;
+  return { categories, loading };
 }

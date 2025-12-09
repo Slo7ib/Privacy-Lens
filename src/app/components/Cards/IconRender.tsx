@@ -1,8 +1,14 @@
 import { IconCircle } from "./IconCircle";
-// import { collectedCategories } from "../../../logic/classifyData";
 import { useCollectedCategories } from "../../hooks/useCollectedCategories";
+import SkeletonCard from "./SkeletonCard";
+
 function IconsRender({ section }: { section: string }) {
-  const categories = useCollectedCategories();
+  const { categories, loading } = useCollectedCategories();
+
+  if (loading) {
+    return <SkeletonCard />;
+  }
+
   return (
     <>
       {categories

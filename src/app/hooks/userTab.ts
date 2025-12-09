@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { policyFinder } from "../../logic/policyFinder";
 
-export default function usePrivacyScan() {
+export default function userTab() {
   const [loading, setLoading] = useState(false);
 
   const scan = async () => {
@@ -28,13 +28,14 @@ export default function usePrivacyScan() {
       });
 
       // Send result to background service worker
+      // POLICY_RESULT => POLICY_PAGE
       await chrome.runtime.sendMessage({
-        type: "POLICY_RESULT",
+        type: "POLICY_PAGE",
         data: result,
         tabId: tab.id,
       });
 
-      console.log("Sent policy page data to background:", result);
+      console.log("Sent policy page data to the background worker:", result);
     } catch (err) {
       console.error("Scan error:", err);
     }

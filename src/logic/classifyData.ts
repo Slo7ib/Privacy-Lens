@@ -11,6 +11,11 @@ import {
   Cookie,
   HouseWifi,
   MonitorSmartphone,
+  CreditCard,
+  DollarSign,
+  Calendar,
+  Contact,
+  Fingerprint,
 } from "lucide-react";
 
 export interface CollectedCategory {
@@ -19,22 +24,27 @@ export interface CollectedCategory {
   collected: boolean;
   icon: LucideIcon;
   key: number;
+  question: string;
 }
 
-export const collectedCategories: CollectedCategory[] = [
+export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 1,
     element: "Phone Number",
     collected: true,
     icon: Phone,
     section: "Personal Identifiers",
+    question:
+      "Does the privacy policy state that the website collects or stores the user's phone number?",
   },
   {
     key: 2,
     element: "Account Credentials",
-    collected: true,
+    collected: false,
     icon: KeyRound,
     section: "Personal Identifiers",
+    question:
+      "Does the privacy policy indicate that the website collects or stores account credentials such as usernames or passwords?",
   },
   {
     key: 3,
@@ -42,13 +52,17 @@ export const collectedCategories: CollectedCategory[] = [
     collected: true,
     icon: UserRound,
     section: "Personal Identifiers",
+    question:
+      "Does the privacy policy mention collecting or storing personal information such as name, age, or identity details?",
   },
   {
     key: 4,
     element: "Email",
-    collected: false,
+    collected: true,
     icon: Mail,
     section: "Personal Identifiers",
+    question:
+      "Does the privacy policy state that the website collects or stores the user's email address?",
   },
   {
     key: 5,
@@ -56,6 +70,8 @@ export const collectedCategories: CollectedCategory[] = [
     collected: false,
     icon: Link,
     section: "Online Activity",
+    question:
+      "Does the privacy policy indicate that the website tracks or records the links a user clicks?",
   },
   {
     key: 6,
@@ -63,26 +79,70 @@ export const collectedCategories: CollectedCategory[] = [
     collected: true,
     icon: History,
     section: "Online Activity",
+    question:
+      "Does the privacy policy state that the website tracks or logs the pages a user visits?",
   },
   {
     key: 7,
     element: "Cookie usage",
-    collected: false,
+    collected: true,
     icon: Cookie,
     section: "Online Activity",
+    question:
+      "Does the privacy policy mention collecting data through cookies or similar tracking technologies?",
   },
   {
     key: 8,
-    element: "Deivce Type",
+    element: "Device Type",
     collected: true,
     icon: MonitorSmartphone,
     section: "Device Data",
+    question:
+      "Does the privacy policy indicate that the website collects information about the users device type?",
   },
   {
     key: 9,
     element: "IP Address",
-    collected: false,
+    collected: true,
     icon: HouseWifi,
     section: "Device Data",
+    question:
+      "Does the privacy policy state that the website collects or logs the users IP address?",
+  },
+  {
+    key: 10,
+    element: "Payment Information",
+    collected: true,
+    icon: CreditCard,
+    section: "Personal Identifiers",
+    question:
+      "Does the privacy policy indicate that the website collects or stores payment information such as credit card or billing details?",
+  },
+  {
+    key: 12,
+    element: "Calendar Access",
+    collected: true,
+    icon: Calendar,
+    section: "Device Data",
+    question:
+      "Does the privacy policy state that the website or app accesses or collects data from the user's calendar?",
+  },
+  {
+    key: 13,
+    element: "Contact List",
+    collected: true,
+    icon: Contact,
+    section: "Device Data",
+    question:
+      "Does the privacy policy mention accessing or collecting the users contacts or address book?",
+  },
+  {
+    key: 14,
+    element: "Biometric Data",
+    collected: true,
+    icon: Fingerprint,
+    section: "Personal Identifiers",
+    question:
+      "Does the privacy policy indicate that the website collects or stores biometric data such as fingerprints, face scans, or other biometric identifiers?",
   },
 ];
