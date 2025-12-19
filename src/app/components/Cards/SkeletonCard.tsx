@@ -15,10 +15,10 @@ function SkeletonCard() {
 }
 function SkeletonLine() {
   return (
-    <>
+    <div className="h-24">
       <p className="ml-2.5 h-2/6 w-4/5 animate-pulse rounded-lg bg-gray-700"></p>
       <p className="mt-1.5 ml-2.5 h-2/6 w-2/5 animate-pulse rounded-lg bg-gray-700"></p>
-    </>
+    </div>
   );
 }
 export default SkeletonCard;
