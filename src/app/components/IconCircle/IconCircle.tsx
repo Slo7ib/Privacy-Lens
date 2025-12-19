@@ -12,7 +12,6 @@ export const IconCircle: React.FC<IconCircleProps> = ({ icon, label }) => {
         {icon}
       </div>
 
-      {/* label shown only on hover; prepared for content from props */}
       {label ? (
         <span className="mt-2 h-4 -translate-y-1 transform text-xs text-gray-100 opacity-0 transition duration-200 group-hover:translate-y-0 group-hover:opacity-100">
           {label}
@@ -21,3 +20,4 @@ export const IconCircle: React.FC<IconCircleProps> = ({ icon, label }) => {
     </div>
   );
 };
+

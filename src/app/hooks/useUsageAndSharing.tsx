@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import type { AIStorageState } from "../types/AIStorageState";
-export function useUsageReceiver() {
+
+export function useUsageAndSharing() {
   const [usageState, setUsageState] = useState<AIStorageState | null>(null);
 
   useEffect(() => {
@@ -26,3 +27,4 @@ export function useUsageReceiver() {
 
   return usageState;
 }
+

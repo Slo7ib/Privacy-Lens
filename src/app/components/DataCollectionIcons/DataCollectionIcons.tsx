@@ -1,9 +1,13 @@
-import { IconCircle } from "./IconCircle";
-import { useCollectedCategories } from "../../hooks/useCollectedCategories";
-import SkeletonCard from "./SkeletonCard";
+import { IconCircle } from "../IconCircle/IconCircle";
+import { useDataCollection } from "../../hooks/useDataCollection";
+import { SkeletonCard } from "../SkeletonCard/SkeletonCard";
 
-function IconsRender({ section }: { section: string }) {
-  const { categories, loading } = useCollectedCategories();
+interface DataCollectionIconsProps {
+  section: string;
+}
+
+export function DataCollectionIcons({ section }: DataCollectionIconsProps) {
+  const { categories, loading } = useDataCollection();
 
   if (loading) {
     return <SkeletonCard />;
@@ -27,4 +31,3 @@ function IconsRender({ section }: { section: string }) {
   );
 }
 
-export default IconsRender;

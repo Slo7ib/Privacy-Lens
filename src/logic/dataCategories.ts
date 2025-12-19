@@ -1,4 +1,3 @@
-// Here i will be defining a category that should be connected to the react component to render the elemnts based on the response from the api
 import type { SectionName } from "../app/types/sections";
 import type { LucideIcon } from "lucide-react";
 import {
@@ -12,7 +11,6 @@ import {
   HouseWifi,
   MonitorSmartphone,
   CreditCard,
-  DollarSign,
   Calendar,
   Contact,
   Fingerprint,
@@ -146,3 +144,4 @@ export const dataCollectionItems: CollectedCategory[] = [
       "Does the privacy policy indicate that the website collects or stores biometric data such as fingerprints, face scans, or other biometric identifiers?",
   },
 ];
+

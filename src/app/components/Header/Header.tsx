@@ -1,4 +1,4 @@
-const Header = () => {
+export function Header() {
   return (
     <header className="flex justify-center">
       <img
@@ -11,6 +11,4 @@ const Header = () => {
       </h1>
     </header>
   );
-};
-
-export default Header;
+}

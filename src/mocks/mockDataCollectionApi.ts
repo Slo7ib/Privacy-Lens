@@ -1,8 +1,4 @@
-import { dataCollectionItems } from "../logic/classifyData";
-
-// Fake API response for data collection analysis
-// This simulates an AI response that answers each question with true/false
-const fakeDataCollectionResponse = {
+export const mockDataCollectionApiResponse = {
   id: "chatcmpl-datacollection-123",
   object: "chat.completion",
   created: 1734023812,
@@ -39,6 +35,4 @@ const fakeDataCollectionResponse = {
     total_tokens: 376,
   },
 };
-
-export default fakeDataCollectionResponse;
 

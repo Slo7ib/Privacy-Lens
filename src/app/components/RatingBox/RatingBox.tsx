@@ -3,7 +3,7 @@ interface RatingBoxProps {
   loading: boolean;
 }
 
-function RatingBox({ scan, loading }: RatingBoxProps) {
+export function RatingBox({ scan, loading }: RatingBoxProps) {
   return (
     <div className="card-container relative mx-auto flex h-[180px] w-full max-w-[280px] flex-row justify-center overflow-hidden rounded-xl border border-white/20 bg-white/10 shadow-2xl backdrop-blur-md transition duration-300">
       <div className="slash-panel flex w-2/5 shrink-0 flex-col items-center justify-center p-2">
@@ -35,4 +35,3 @@ function RatingBox({ scan, loading }: RatingBoxProps) {
     </div>
   );
 }
-export default RatingBox;

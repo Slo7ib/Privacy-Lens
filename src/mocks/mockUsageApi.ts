@@ -1,4 +1,4 @@
-const fakeResponse = {
+export const mockUsageApiResponse = {
   id: "chatcmpl-9f82jd92k3ls81h2",
   object: "chat.completion",
   created: 1734023812,
@@ -21,6 +21,3 @@ const fakeResponse = {
   },
 };
 
-export default fakeResponse;
-// content:
-//           '{"usage":"The privacy policy explains how the website collects and uses user data to operate the service, enhance functionality, and improve overall user experience.","sharing":"The policy indicates that user data may be shared with third-party partners or service providers for analytics, operational needs, or to support core features."}',

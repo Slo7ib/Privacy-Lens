@@ -1,4 +1,4 @@
-function SkeletonCard() {
+export function SkeletonCard() {
   return (
     <>
       {[...Array(3)].map((_, i) => (
@@ -13,7 +13,8 @@ function SkeletonCard() {
     </>
   );
 }
-function SkeletonLine() {
+
+export function SkeletonLine() {
   return (
     <div className="h-24">
       <p className="ml-2.5 h-2/6 w-4/5 animate-pulse rounded-lg bg-gray-700"></p>
@@ -21,5 +22,4 @@ function SkeletonLine() {
     </div>
   );
 }
-export default SkeletonCard;
-export { SkeletonLine };
+

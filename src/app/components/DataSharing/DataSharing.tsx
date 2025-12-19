@@ -1,7 +1,8 @@
-import { SkeletonLine } from "../Cards/SkeletonCard";
-import { useUsageReceiver } from "../../hooks/useUsageReceiver";
-const DataSharing = () => {
-  const usageState = useUsageReceiver();
+import { SkeletonLine } from "../SkeletonCard/SkeletonCard";
+import { useUsageAndSharing } from "../../hooks/useUsageAndSharing";
+
+export function DataSharing() {
+  const usageState = useUsageAndSharing();
 
   const isLoading = usageState?.status === "loading";
   const isReady = usageState?.status === "ready";
@@ -55,6 +56,5 @@ const DataSharing = () => {
       </div>
     </>
   );
-};
+}
 
-export default DataSharing;
