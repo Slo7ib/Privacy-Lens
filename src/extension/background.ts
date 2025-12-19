@@ -1,11 +1,10 @@
+import type { AIStorageState } from "../app/types/AIStorageState";
 import { extractText } from "../logic/extractText";
-import {
-  dataCollectionItems,
-  type CollectedCategory,
-} from "../logic/classifyData";
+
+import fakeResponse from "../utils/FakeAPI";
 
 // const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
-const HUGGINGFACE_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
+// const HUGGINGFACE_API_KEY = import.meta.env.VITE_HUGGINGFACE_API_KEY;
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   // Here the service worker recives the privacy policy page's data.
@@ -41,73 +40,94 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         rawHTML: html,
         plainText: text,
       };
-      // I will do an AI function to make a new Category list based on the old one
 
-      async function aiFunc(payload: {
-        messages: Array<{ role: string; content: string }>;
-        model: string;
-      }) {
-        const response = await fetch(
-          "https://router.huggingface.co/v1/chat/completions",
-          {
-            headers: {
-              Authorization: `Bearer ${HUGGINGFACE_API_KEY}`,
-              "Content-Type": "application/json",
-            },
-            method: "POST",
-            body: JSON.stringify({
-              model: payload.model,
-              messages: payload.messages,
-            }),
-          },
-        );
-        const result = await response.json();
-        return result;
+      await fakeAnswer();
+
+      function fakeApi(): Promise<typeof fakeResponse> {
+        return new Promise((resolve, reject) => {
+          setTimeout(() => {
+            const shouldError = false;
+            if (shouldError) {
+              reject("The API had a mistake in usage stuff");
+            } else {
+              resolve(fakeResponse);
+            }
+          }, 4000);
+        });
       }
 
-      aiFunc({
-        messages: [
-          {
-            role: "user",
-            content: `Read ${finalPayload.plainText} then Answer with a boolean value (collected) for each of the follwing questions, the answer should ONLY return a JSON array of objects with only two properties ("element" and "collected"). DO NOT CHANGE THE ELEMENTS GIVEN FOR EACH QUESTION, here are the questions and thier corrosponding element ${JSON.stringify(
-              dataCollectionItems.map((item) => {
-                return `question / ${item.question} - element: ${item.element}`;
-              }),
-            )}
-OUTPUT RULES (important):
-- Return ONLY valid JSON
-- JSON should only have two proprties (collected) which is either (true or false) and element which is strictly connected to the given question
-`,
-          },
-        ],
-        model: "deepseek-ai/DeepSeek-V3.2:novita",
-      }).then((response) => {
-        const rawAnswers = response.choices[0].message.content;
+      // This function will clean any AI result and turn it into a JSON'ifyable string.
+      function cleanResponse(uncleanedSharing: string) {
+        const firstIndex = uncleanedSharing.indexOf("{");
+        const endIndex = uncleanedSharing.lastIndexOf("}");
 
-        let parsedAnswers;
-        try {
-          const cleaned = rawAnswers
-            .trim()
-            .replace(/```json/gi, "")
-            .replace(/```/g, "")
-            .trim();
-
-          // optionally remove any text before the first "[" or "{"
-          const jsonStart = cleaned.indexOf("[");
-          const justJson = cleaned.slice(jsonStart);
-
-          parsedAnswers = JSON.parse(justJson);
-        } catch (e) {
-          console.error("Invalid JSON from AI", rawAnswers);
+        if (firstIndex === -1 || endIndex === -1 || endIndex < firstIndex) {
+          return "error in cleaning";
         }
+        // This will cut the extra words before and after the usageResponse we get from the AI
+        let cleanedResponse = uncleanedSharing.substring(
+          firstIndex,
+          endIndex + 1,
+        );
 
-        chrome.runtime.sendMessage({
-          type: "ANSWERS",
-          data: parsedAnswers,
-        });
-      });
+        cleanedResponse = cleanedResponse
+          .replace(/json s* ^ /, "")
+          .replace(/\s*```$/, "");
 
-      // if message came from popup, send to content script
+        return cleanedResponse;
+      }
+
+      async function fakeAnswer() {
+        try {
+          chrome.storage.local.set({
+            aiUsageResult: {
+              status: "loading",
+            } satisfies AIStorageState,
+          });
+          const rawSharing = await fakeApi();
+          const uncleanedSharing: string =
+            rawSharing?.choices[0].message.content;
+
+          let cleanedSharing = cleanResponse(uncleanedSharing);
+          const parsedSharing = JSON.parse(cleanedSharing.trim());
+
+          if (
+            !parsedSharing ||
+            typeof parsedSharing.usage !== "string" ||
+            typeof parsedSharing.sharing !== "string"
+          ) {
+            console.error(
+              "the AI usageResponse does not have the expected properties",
+              parsedSharing,
+            );
+            return null;
+          }
+
+          interface usageAndSharing {
+            usage: string;
+            sharing: string;
+          }
+          const usageResponse: usageAndSharing = {
+            usage: parsedSharing.usage,
+            sharing: parsedSharing.sharing,
+          };
+
+          chrome.storage.local.set({
+            aiUsageResult: {
+              status: "ready",
+              data: usageResponse,
+            } satisfies AIStorageState,
+          });
+        } catch (err) {
+          chrome.storage.local.set({
+            aiUsageResult: {
+              status: "error",
+              message: `AI response invalid ${err}`,
+            } satisfies AIStorageState,
+          });
+        }
+      }
+
       if (sender.tab?.id !== undefined) {
         chrome.tabs.sendMessage(sender.tab.id, {
           type: "POLICY_SUMMARY_READY",
@@ -121,22 +141,3 @@ OUTPUT RULES (important):
     return true;
   }
 });
-
-// fetch("https://openrouter.ai/api/v1/chat/completions", {
-//   method: "POST",
-//   headers: {
-//     Authorization: `Bearer ${OPENROUTER_API_KEY}`,
-//     "HTTP-Referer": "<YOUR_SITE_URL>", // Optional. Site URL for rankings on openrouter.ai.
-//     "X-Title": "<YOUR_SITE_NAME>", // Optional. Site title for rankings on openrouter.ai.
-//     "Content-Type": "application/json",
-//   },
-//   body: JSON.stringify({
-//     model: "openai/gpt-4o",
-//     messages: [
-//       {
-//         role: "user",
-//         content: "What is the meaning of life?",
-//       },
-//     ],
-//   }),
-// });

@@ -15,12 +15,10 @@ function SkeletonCard() {
 }
 function SkeletonLine() {
   return (
-    <div className="w-full">
-      <h1 className="mb-0 text-left text-xl font-medium">Usage</h1>
-      <p className="mt-3 h-5 w-3/4 animate-pulse rounded-xl bg-gray-700"></p>
-      <h1 className="mt-2 mb-0 text-left text-xl font-medium">Sharing</h1>
-      <p className="mt-3 h-5 w-3/4 animate-pulse rounded-xl bg-gray-700"></p>
-    </div>
+    <>
+      <p className="ml-2.5 h-2/6 w-4/5 animate-pulse rounded-lg bg-gray-700"></p>
+      <p className="mt-1.5 ml-2.5 h-2/6 w-2/5 animate-pulse rounded-lg bg-gray-700"></p>
+    </>
   );
 }
 export default SkeletonCard;

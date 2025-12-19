@@ -31,7 +31,7 @@ export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 1,
     element: "Phone Number",
-    collected: true,
+    collected: false,
     icon: Phone,
     section: "Personal Identifiers",
     question:
@@ -49,7 +49,7 @@ export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 3,
     element: "Personal Information",
-    collected: true,
+    collected: false,
     icon: UserRound,
     section: "Personal Identifiers",
     question:
@@ -58,7 +58,7 @@ export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 4,
     element: "Email",
-    collected: true,
+    collected: false,
     icon: Mail,
     section: "Personal Identifiers",
     question:
@@ -76,7 +76,7 @@ export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 6,
     element: "Pages visited",
-    collected: true,
+    collected: false,
     icon: History,
     section: "Online Activity",
     question:
@@ -85,7 +85,7 @@ export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 7,
     element: "Cookie usage",
-    collected: true,
+    collected: false,
     icon: Cookie,
     section: "Online Activity",
     question:
@@ -94,7 +94,7 @@ export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 8,
     element: "Device Type",
-    collected: true,
+    collected: false,
     icon: MonitorSmartphone,
     section: "Device Data",
     question:
@@ -103,7 +103,7 @@ export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 9,
     element: "IP Address",
-    collected: true,
+    collected: false,
     icon: HouseWifi,
     section: "Device Data",
     question:
@@ -112,7 +112,7 @@ export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 10,
     element: "Payment Information",
-    collected: true,
+    collected: false,
     icon: CreditCard,
     section: "Personal Identifiers",
     question:
@@ -121,7 +121,7 @@ export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 12,
     element: "Calendar Access",
-    collected: true,
+    collected: false,
     icon: Calendar,
     section: "Device Data",
     question:
@@ -130,7 +130,7 @@ export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 13,
     element: "Contact List",
-    collected: true,
+    collected: false,
     icon: Contact,
     section: "Device Data",
     question:
@@ -139,7 +139,7 @@ export const dataCollectionItems: CollectedCategory[] = [
   {
     key: 14,
     element: "Biometric Data",
-    collected: true,
+    collected: false,
     icon: Fingerprint,
     section: "Personal Identifiers",
     question:
