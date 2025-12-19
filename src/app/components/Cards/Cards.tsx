@@ -1,17 +1,8 @@
-import { useState, useEffect } from "react";
 import DataSharing from "../DataSharing/DataSharing";
 import IconRender from "./IconRender";
-import { sections, type SectionName } from "../../types/sections";
-import SkeletonCard, { SkeletonLine } from "./SkeletonCard";
-function Cards() {
-  const [isLoading, setIsLoading] = useState(true);
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000); // 2 seconds delay
+import { sections } from "../../types/sections";
 
-    return () => clearTimeout(timer);
-  }, []);
+function Cards() {
   return (
     <div className="mt-3.5 w-full max-w-lg p-0 px-8 text-center text-gray-100 sm:p-10">
       <div className="mt-2 flex flex-col space-y-2.5">
@@ -20,11 +11,7 @@ function Cards() {
             🛡️ {sections[0]}
           </h3>
           <ul className="my-4 grid grid-cols-3 place-items-center justify-around gap-6">
-            {isLoading ? (
-              <SkeletonCard />
-            ) : (
-              <IconRender section="Personal Identifiers" />
-            )}
+            <IconRender section="Personal Identifiers" />
           </ul>
 
           {/* Online Activity section */}
@@ -33,11 +20,7 @@ function Cards() {
               🌐 {sections[1]}
             </h3>
             <ul className="my-4 grid grid-cols-3 place-items-center justify-center gap-6">
-              {isLoading ? (
-                <SkeletonCard />
-              ) : (
-                <IconRender section="Online Activity" />
-              )}
+              <IconRender section="Online Activity" />
             </ul>
           </div>
 
@@ -47,17 +30,13 @@ function Cards() {
               💻 {sections[2]}
             </h3>
             <ul className="my-4 grid grid-cols-3 place-items-center justify-center gap-6">
-              {isLoading ? (
-                <SkeletonCard />
-              ) : (
-                <IconRender section="Device Data" />
-              )}
+              <IconRender section="Device Data" />
             </ul>
           </div>
         </div>
         {/* Sharing Info part */}
         <div className="mb-1.5 rounded-2xl border border-white/20 bg-white/0 p-4 text-gray-100 shadow-xl backdrop-blur-md backdrop-brightness-50 backdrop-contrast-100">
-          {isLoading ? <SkeletonLine /> : <DataSharing />}
+          <DataSharing />
         </div>
       </div>
     </div>
