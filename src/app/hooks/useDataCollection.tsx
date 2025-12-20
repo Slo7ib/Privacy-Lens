@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import type { CollectedCategory } from "../../logic/dataCategories";
 import { dataCollectionItems } from "../../logic/dataCategories";
 
@@ -7,18 +7,19 @@ export function useDataCollection() {
   // Start with loading true to show skeleton immediately when component mounts during scan
   const [loading, setLoading] = useState(true);
 
-  const updateCategories = (answers: Array<{ element: string; collected: boolean }>) => {
+  // Optimized: Use Map for O(1) lookups instead of O(n) find() calls
+  const updateCategories = useCallback((answers: Array<{ element: string; collected: boolean }>) => {
+    // Create a Map for O(1) lookups
+    const answersMap = new Map(answers.map((a) => [a.element, a.collected]));
+
     setCategories(
-      dataCollectionItems.map((item) => {
-        const match = answers.find((a) => a.element === item.element);
-        return {
-          ...item,
-          collected: match ? match.collected : false,
-        };
-      }),
+      dataCollectionItems.map((item) => ({
+        ...item,
+        collected: answersMap.get(item.element) ?? false,
+      })),
     );
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
     const checkStorageAndUrl = async () => {
@@ -78,14 +79,15 @@ export function useDataCollection() {
       changes: { [key: string]: chrome.storage.StorageChange },
       area: string,
     ) => {
-      if (area === "local" && changes.dataCollectionAnswers) {
-        const [tab] = await chrome.tabs.query({
-          active: true,
-          lastFocusedWindow: true,
-        });
-        const currentUrl = tab?.url || "";
+      if (area !== "local") return;
 
-        const storage = await chrome.storage.local.get(["dataCollectionUrl"]);
+      // Batch operations: get tab and storage in parallel when needed
+      if (changes.dataCollectionAnswers) {
+        const [tab, storage] = await Promise.all([
+          chrome.tabs.query({ active: true, lastFocusedWindow: true }),
+          chrome.storage.local.get(["dataCollectionUrl"]),
+        ]);
+        const currentUrl = tab[0]?.url || "";
         const storedUrl = storage.dataCollectionUrl || "";
 
         if (currentUrl === storedUrl) {
@@ -95,27 +97,21 @@ export function useDataCollection() {
             chrome.storage.local.remove(["dataCollectionLoading"]);
           }
         }
+        return;
       }
 
-      if (area === "local" && changes.dataCollectionLoading) {
-        if (changes.dataCollectionLoading.newValue === true) {
+      if (changes.dataCollectionLoading?.newValue === true) {
+        setLoading(true);
+      }
+
+      if (changes.hasScanned?.newValue === true) {
+        const [tab, storage] = await Promise.all([
+          chrome.tabs.query({ active: true, lastFocusedWindow: true }),
+          chrome.storage.local.get(["scannedUrl"]),
+        ]);
+        const currentUrl = tab[0]?.url || "";
+        if (storage.scannedUrl === currentUrl) {
           setLoading(true);
-        } else if (changes.dataCollectionLoading.newValue === undefined) {
-          // Don't change loading state when it's removed
-        }
-      }
-
-      if (area === "local" && changes.hasScanned) {
-        if (changes.hasScanned.newValue === true) {
-          const [tab] = await chrome.tabs.query({
-            active: true,
-            lastFocusedWindow: true,
-          });
-          const currentUrl = tab?.url || "";
-          const storage = await chrome.storage.local.get(["scannedUrl"]);
-          if (storage.scannedUrl === currentUrl) {
-            setLoading(true);
-          }
         }
       }
     };
