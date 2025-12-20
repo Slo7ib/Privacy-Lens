@@ -1,8 +1,9 @@
 import type { AIStorageState } from "../app/types/AIStorageState";
 import { extractText } from "../logic/extractText";
 import { dataCollectionItems } from "../logic/dataCategories";
-import { mockUsageApiResponse } from "../mocks/mockUsageApi";
-import { mockDataCollectionApiResponse } from "../mocks/mockDataCollectionApi";
+
+const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_MODEL = "mistralai/mistral-nemo";
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "POLICY_PAGE") {
@@ -14,6 +15,12 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
     (async () => {
       console.log("[background] Received policy data", data);
+
+      // Set loading state immediately when we receive the policy page message
+      // This ensures the UI shows loading state even before analysis starts
+      chrome.storage.local.set({
+        dataCollectionLoading: true,
+      });
 
       let html = "";
       let text = "";
@@ -37,7 +44,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
         plainText: text,
       };
 
-      await analyzeUsageAndSharing();
+      await analyzeUsageAndSharing(text);
       await analyzeDataCollection(text);
 
       if (sender.tab?.id !== undefined) {
@@ -54,12 +61,21 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
+async function getOpenRouterApiKey(): Promise<string | null> {
+  const result = await chrome.storage.local.get("openRouterApiKey");
+  return (result.openRouterApiKey as string | undefined) || null;
+}
+
 function generateDataCollectionPrompt(policyText: string): string {
   const questions = dataCollectionItems
     .map((item, index) => `${index + 1}. ${item.question}`)
     .join("\n");
 
-  return `You are analyzing a privacy policy to determine what data is being collected. Read the following privacy policy text and answer each question with ONLY "true" or "false" based on whether the policy explicitly states or indicates that the data is collected.
+  const elementList = dataCollectionItems
+    .map((item) => `- "${item.element}"`)
+    .join("\n");
+
+  return `You are analyzing a privacy policy to determine what data is being collected. Read the following privacy policy text and answer each question with "true" or "false" based on whether the policy mentions or indicates collection of that data type.
 
 Privacy Policy Text:
 ${policyText.substring(0, 8000)}${policyText.length > 8000 ? "\n[... text truncated ...]" : ""}
@@ -67,20 +83,51 @@ ${policyText.substring(0, 8000)}${policyText.length > 8000 ? "\n[... text trunca
 Questions to answer:
 ${questions}
 
-IMPORTANT: 
-- Answer each question with ONLY "true" or "false" (lowercase)
-- Be conservative: only answer "true" if the policy explicitly mentions or clearly indicates collection of that data type
-- Return your response as a JSON object with this exact structure:
+IMPORTANT GUIDELINES:
+- Answer "true" if the policy mentions collecting, storing, processing, or using the data type, even if worded differently
+- For "Personal Information": Answer "true" if the policy mentions ANY of the following: name, age, date of birth, birthdate, DOB, identity details, personal details, demographic information, gender, marital status, nationality, or any similar personal identifiers. Examples that should be "true": "we collect your age", "we store date of birth", "we process personal details", "we collect demographic data"
+- Look for synonyms and related terms (e.g., "DOB" = date of birth, "demographics" = personal information, "PII" = personal information)
+- Answer "false" only if the policy explicitly states the data is NOT collected, or if there is absolutely no mention of it
+- Be thorough: if the policy mentions collecting data that falls under a category, answer "true"
+
+Return your response as a JSON object with this EXACT structure:
 {
   "answers": [
     { "element": "Phone Number", "collected": true },
     { "element": "Account Credentials", "collected": false },
+    { "element": "Personal Information", "collected": true },
     ...
   ]
 }
-- Include ALL elements from the list above
-- Use the exact element names as provided
-- Do not include any additional text, explanations, or markdown formatting outside the JSON`;
+
+REQUIRED: You MUST include ALL of the following elements in your response (use these EXACT names):
+${elementList}
+
+- Use the EXACT element names as shown above (case-sensitive)
+- Return ONLY valid JSON without any additional text, explanations, or markdown formatting outside the JSON
+- Do not use code blocks or markdown formatting`;
+}
+
+function generateUsageAndSharingPrompt(policyText: string): string {
+  return `You are analyzing a privacy policy to summarize how user data is used and shared. Read the following privacy policy text and provide a concise summary.
+
+Privacy Policy Text:
+${policyText.substring(0, 8000)}${policyText.length > 8000 ? "\n[... text truncated ...]" : ""}
+
+Please analyze the policy and provide:
+1. A summary of how the collected data is used (usage)
+2. A summary of how the data is shared with third parties (sharing)
+
+Return your response as a JSON object with this exact structure:
+{
+  "usage": "Brief summary of how user data is used...",
+  "sharing": "Brief summary of how user data is shared..."
+}
+
+IMPORTANT:
+- Be concise but informative
+- Base your analysis only on what is explicitly stated in the policy
+- Return ONLY valid JSON without any additional text, explanations, or markdown formatting`;
 }
 
 function cleanJsonResponse(response: string): string | null {
@@ -127,25 +174,35 @@ function validateDataCollectionAnswers(
     }> = [];
 
     for (const answer of parsed.answers) {
-      if (
-        !answer ||
-        typeof answer.element !== "string" ||
-        typeof answer.collected !== "boolean"
-      ) {
-        console.warn("[background] Skipping invalid answer entry:", answer);
+      if (!answer || typeof answer.element !== "string") {
+        console.warn("[background] Skipping invalid answer entry (missing element):", answer);
         continue;
+      }
+
+      // Handle both boolean and string boolean values
+      let collectedValue: boolean;
+      if (typeof answer.collected === "boolean") {
+        collectedValue = answer.collected;
+      } else if (typeof answer.collected === "string") {
+        collectedValue = answer.collected.toLowerCase() === "true";
+      } else {
+        console.warn(
+          `[background] Invalid collected value for "${answer.element}": ${answer.collected}, defaulting to false`,
+        );
+        collectedValue = false;
       }
 
       if (!validElements.has(answer.element)) {
         console.warn(
-          `[background] Unknown element "${answer.element}", skipping`,
+          `[background] Unknown element "${answer.element}", skipping. Valid elements are:`,
+          Array.from(validElements),
         );
         continue;
       }
 
       validatedAnswers.push({
         element: answer.element,
-        collected: answer.collected,
+        collected: collectedValue,
       });
     }
 
@@ -168,7 +225,63 @@ function validateDataCollectionAnswers(
   }
 }
 
+async function callOpenRouterApi(
+  prompt: string,
+): Promise<{ choices: Array<{ message: { content: string } }> } | null> {
+  try {
+    const apiKey = await getOpenRouterApiKey();
+    if (!apiKey) {
+      console.error(
+        "[background] OpenRouter API key not found. Please set it in chrome.storage.local with key 'openRouterApiKey'",
+      );
+      return null;
+    }
+
+    const response = await fetch(OPENROUTER_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "HTTP-Referer": chrome.runtime.getURL(""),
+        "X-Title": "Privacy Lens",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: OPENROUTER_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        "[background] OpenRouter API error:",
+        response.status,
+        errorText,
+      );
+      return null;
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (err) {
+    console.error("[background] Error calling OpenRouter API:", err);
+    return null;
+  }
+}
+
 async function analyzeDataCollection(policyText: string) {
+  // Get tab info once at the start for use throughout the function
+  const [tab] = await chrome.tabs.query({
+    active: true,
+    lastFocusedWindow: true,
+  });
+  const currentTabUrl = tab?.url || "";
+
   try {
     if (!policyText || policyText.trim().length === 0) {
       console.warn(
@@ -177,23 +290,22 @@ async function analyzeDataCollection(policyText: string) {
       return;
     }
 
+    // Ensure loading state is set at the start of analysis
+    chrome.storage.local.set({
+      dataCollectionLoading: true,
+    });
+
     const prompt = generateDataCollectionPrompt(policyText);
     console.log("[background] Generated data collection prompt", {
       promptLength: prompt.length,
       policyTextLength: policyText.length,
     });
 
-    function mockDataCollectionApi(): Promise<
-      typeof mockDataCollectionApiResponse
-    > {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(mockDataCollectionApiResponse);
-        }, 3000);
-      });
+    const rawResponse = await callOpenRouterApi(prompt);
+    if (!rawResponse) {
+      throw new Error("Failed to get response from OpenRouter API");
     }
 
-    const rawResponse = await mockDataCollectionApi();
     const rawContent: string =
       rawResponse?.choices[0]?.message?.content || "";
 
@@ -202,25 +314,26 @@ async function analyzeDataCollection(policyText: string) {
       return;
     }
 
+    console.log("[background] Raw AI response:", rawContent);
+
     const cleanedContent = cleanJsonResponse(rawContent);
     if (!cleanedContent) {
       console.error("[background] Failed to clean data collection response");
       return;
     }
 
+    console.log("[background] Cleaned JSON response:", cleanedContent);
+
     const parsed = JSON.parse(cleanedContent);
+    console.log("[background] Parsed response:", parsed);
+
     const validatedAnswers = validateDataCollectionAnswers(parsed);
+    console.log("[background] Validated answers:", validatedAnswers);
 
     if (!validatedAnswers || validatedAnswers.length === 0) {
       console.error("[background] No valid answers after validation");
       return;
     }
-
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      lastFocusedWindow: true,
-    });
-    const currentTabUrl = tab?.url || "";
 
     chrome.storage.local.set({
       dataCollectionAnswers: validatedAnswers,
@@ -241,12 +354,6 @@ async function analyzeDataCollection(policyText: string) {
       collected: false,
     }));
 
-    const [tab] = await chrome.tabs.query({
-      active: true,
-      lastFocusedWindow: true,
-    });
-    const currentTabUrl = tab?.url || "";
-
     chrome.storage.local.set({
       dataCollectionAnswers: fallbackAnswers,
       dataCollectionUrl: currentTabUrl,
@@ -259,24 +366,39 @@ async function analyzeDataCollection(policyText: string) {
   }
 }
 
-async function analyzeUsageAndSharing() {
+async function analyzeUsageAndSharing(policyText: string) {
   try {
+    if (!policyText || policyText.trim().length === 0) {
+      console.warn(
+        "[background] No policy text available for usage and sharing analysis",
+      );
+      chrome.storage.local.set({
+        aiUsageResult: {
+          status: "error",
+          message: "No policy text available",
+        } satisfies AIStorageState,
+      });
+      return;
+    }
+
     chrome.storage.local.set({
       aiUsageResult: {
         status: "loading",
       } satisfies AIStorageState,
     });
 
-    function mockUsageApi(): Promise<typeof mockUsageApiResponse> {
-      return new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(mockUsageApiResponse);
-        }, 4000);
-      });
+    const prompt = generateUsageAndSharingPrompt(policyText);
+    console.log("[background] Generated usage and sharing prompt", {
+      promptLength: prompt.length,
+      policyTextLength: policyText.length,
+    });
+
+    const rawResponse = await callOpenRouterApi(prompt);
+    if (!rawResponse) {
+      throw new Error("Failed to get response from OpenRouter API");
     }
 
-    const rawResponse = await mockUsageApi();
-    const rawContent: string = rawResponse?.choices[0].message.content;
+    const rawContent: string = rawResponse?.choices[0]?.message?.content || "";
 
     const cleanedContent = cleanJsonResponse(rawContent);
     if (!cleanedContent) {

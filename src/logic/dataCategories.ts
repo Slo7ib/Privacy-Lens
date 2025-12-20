@@ -142,6 +142,77 @@ export const dataCollectionItems: CollectedCategory[] = [
     section: "Personal Identifiers",
     question:
       "Does the privacy policy indicate that the website collects or stores biometric data such as fingerprints, face scans, or other biometric identifiers?",
+  },{
+    key: 15,
+    element: "Location Data",
+    collected: false,
+    icon: HouseWifi,
+    section: "Device Data",
+    question:
+      "Does the privacy policy state that the website collects or infers the user's location, such as GPS data or approximate location based on IP address?",
+  },
+  {
+    key: 16,
+    element: "Search History",
+    collected: false,
+    icon: History,
+    section: "Online Activity",
+    question:
+      "Does the privacy policy mention collecting or storing the user's search history or queries performed on the website?",
+  },
+  {
+    key: 17,
+    element: "Advertising Identifiers",
+    collected: false,
+    icon: MonitorSmartphone,
+    section: "Device Data",
+    question:
+      "Does the privacy policy indicate that the website collects or uses advertising identifiers or tracking IDs for ads or marketing purposes?",
+  },
+  {
+    key: 18,
+    element: "Third-Party Data Sharing",
+    collected: false,
+    icon: Link,
+    section: "Online Activity",
+    question:
+      "Does the privacy policy state that the website shares user data with third parties such as advertisers, analytics providers, or partners?",
+  },
+  {
+    key: 19,
+    element: "Analytics & Usage Data",
+    collected: false,
+    icon: History,
+    section: "Online Activity",
+    question:
+      "Does the privacy policy mention collecting analytics or usage data such as interactions, time spent, or feature usage?",
+  },
+  {
+    key: 20,
+    element: "User-Submitted Content",
+    collected: false,
+    icon: UserRound,
+    section: "Personal Identifiers",
+    question:
+      "Does the privacy policy indicate that the website collects or stores content submitted by the user, such as messages, uploads, or form inputs?",
+  },
+  {
+    key: 21,
+    element: "Customer Support Communications",
+    collected: false,
+    icon: Mail,
+    section: "Personal Identifiers",
+    question:
+      "Does the privacy policy state that the website collects or stores communications with customer support or feedback messages?",
+  },
+  {
+    key: 22,
+    element: "Data Retention",
+    collected: false,
+    icon: Calendar,
+    section: "Personal Identifiers",
+    question:
+      "Does the privacy policy mention how long user data is retained or stored after collection?",
   },
 ];
 

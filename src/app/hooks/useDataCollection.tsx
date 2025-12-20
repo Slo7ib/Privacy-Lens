@@ -4,6 +4,7 @@ import { dataCollectionItems } from "../../logic/dataCategories";
 
 export function useDataCollection() {
   const [categories, setCategories] = useState<CollectedCategory[]>([]);
+  // Start with loading true to show skeleton immediately when component mounts during scan
   const [loading, setLoading] = useState(true);
 
   const updateCategories = (answers: Array<{ element: string; collected: boolean }>) => {
@@ -35,6 +36,7 @@ export function useDataCollection() {
         "scannedUrl",
       ]);
 
+      // Priority 1: If we have answers for the current URL, use them
       if (
         result.dataCollectionAnswers &&
         Array.isArray(result.dataCollectionAnswers) &&
@@ -42,7 +44,11 @@ export function useDataCollection() {
       ) {
         updateCategories(result.dataCollectionAnswers);
         chrome.storage.local.remove(["dataCollectionLoading"]);
-      } else if (result.dataCollectionUrl !== currentUrl) {
+        return;
+      }
+
+      // Priority 2: If URL changed, clear old data
+      if (result.dataCollectionUrl && result.dataCollectionUrl !== currentUrl) {
         chrome.storage.local.remove([
           "dataCollectionAnswers",
           "dataCollectionUrl",
@@ -51,17 +57,20 @@ export function useDataCollection() {
           "dataCollectionLoading",
         ]);
         setLoading(false);
-      } else {
-        const scanInitiated =
-          result.dataCollectionLoading === true ||
-          (result.hasScanned === true && result.scannedUrl === currentUrl);
+        return;
+      }
 
-        if (scanInitiated) {
-          setLoading(true);
-        } else {
-          const hasAnyScanFlag = result.hasScanned || result.dataCollectionLoading;
-          setLoading(hasAnyScanFlag);
-        }
+      // Priority 3: Check if a scan is in progress
+      // If dataCollectionLoading is true OR hasScanned is true for current URL, show loading
+      const isScanning =
+        result.dataCollectionLoading === true ||
+        (result.hasScanned === true && result.scannedUrl === currentUrl);
+
+      if (isScanning) {
+        setLoading(true);
+      } else {
+        // If no data and no scan initiated, set loading to false
+        setLoading(false);
       }
     };
 
@@ -91,12 +100,22 @@ export function useDataCollection() {
       if (area === "local" && changes.dataCollectionLoading) {
         if (changes.dataCollectionLoading.newValue === true) {
           setLoading(true);
+        } else if (changes.dataCollectionLoading.newValue === undefined) {
+          // Don't change loading state when it's removed
         }
       }
 
       if (area === "local" && changes.hasScanned) {
         if (changes.hasScanned.newValue === true) {
-          setLoading(true);
+          const [tab] = await chrome.tabs.query({
+            active: true,
+            lastFocusedWindow: true,
+          });
+          const currentUrl = tab?.url || "";
+          const storage = await chrome.storage.local.get(["scannedUrl"]);
+          if (storage.scannedUrl === currentUrl) {
+            setLoading(true);
+          }
         }
       }
     };
@@ -108,12 +127,19 @@ export function useDataCollection() {
       }
     }
 
+    // Set up listeners first so they're ready to catch changes
     chrome.storage.onChanged.addListener(storageListener);
     chrome.runtime.onMessage.addListener(messageHandler);
 
-    setTimeout(() => {
-      checkStorageAndUrl();
-    }, 100);
+    // Quick synchronous check for loading state before async check
+    chrome.storage.local.get(["dataCollectionLoading", "hasScanned", "scannedUrl"], (result) => {
+      if (result.dataCollectionLoading === true) {
+        setLoading(true);
+      }
+    });
+
+    // Check storage immediately (async)
+    checkStorageAndUrl();
 
     return () => {
       chrome.storage.onChanged.removeListener(storageListener);
