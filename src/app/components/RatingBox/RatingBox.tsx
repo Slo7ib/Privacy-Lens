@@ -3,6 +3,7 @@ import { usePrivacyRating } from "../../hooks/usePrivacyRating";
 interface RatingBoxProps {
   scan: () => Promise<void>;
   loading: boolean;
+  hasScanned: boolean;
 }
 
 function RatingSkeleton() {
@@ -58,7 +59,11 @@ function getStatusText(rating: string): string {
   }
 }
 
-export function RatingBox({ scan, loading: scanLoading }: RatingBoxProps) {
+export function RatingBox({
+  scan,
+  loading: scanLoading,
+  hasScanned,
+}: RatingBoxProps) {
   const { rating } = usePrivacyRating();
 
   // Show skeleton only while actively scanning
@@ -67,7 +72,7 @@ export function RatingBox({ scan, loading: scanLoading }: RatingBoxProps) {
   }
 
   // Safety check - should never happen since rating is always calculated
-  if (!rating) {
+  if (!hasScanned) {
     return (
       <div className="card-container relative mx-auto flex h-[180px] w-full max-w-[280px] flex-row justify-center overflow-hidden rounded-xl border border-white/20 bg-white/10 shadow-2xl backdrop-blur-md transition duration-300">
         <div className="slash-panel flex w-2/5 shrink-0 flex-col items-center justify-center p-2">
@@ -85,7 +90,7 @@ export function RatingBox({ scan, loading: scanLoading }: RatingBoxProps) {
           </h1>
 
           <p className="mb-2 text-[10px] leading-tight text-gray-100">
-            Click scan to analyze privacy policy
+            Click the scan button to start the process
           </p>
 
           <button
