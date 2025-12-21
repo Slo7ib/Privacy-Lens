@@ -64,14 +64,14 @@ export function RatingBox({
   loading: scanLoading,
   hasScanned,
 }: RatingBoxProps) {
-  const { rating } = usePrivacyRating();
+  const { rating, loading: ratingLoading } = usePrivacyRating();
 
-  // Show skeleton only while actively scanning
-  if (scanLoading) {
+  const showSkeleton = scanLoading || (hasScanned && ratingLoading);
+
+  if (showSkeleton) {
     return <RatingSkeleton />;
   }
 
-  // Safety check - should never happen since rating is always calculated
   if (!hasScanned) {
     return (
       <div className="card-container relative mx-auto flex h-[180px] w-full max-w-[280px] flex-row justify-center overflow-hidden rounded-xl border border-white/20 bg-white/10 shadow-2xl backdrop-blur-md transition duration-300">
