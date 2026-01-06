@@ -2,8 +2,7 @@ import type { AIStorageState } from "../app/types/AIStorageState";
 import { extractText } from "../logic/extractText";
 import { dataCollectionItems } from "../logic/dataCategories";
 
-const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const OPENROUTER_MODEL = "mistralai/mistral-nemo";
+const WORKER_URL = "https://privacy-lens.slo7i-b-sb.workers.dev";
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "POLICY_PAGE") {
@@ -61,10 +60,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
-async function getOpenRouterApiKey(): Promise<string | null> {
-  const result = await chrome.storage.local.get("openRouterApiKey");
-  return (result.openRouterApiKey as string | undefined) || null;
-}
+
 
 function generateDataCollectionPrompt(policyText: string): string {
   const questions = dataCollectionItems
@@ -225,54 +221,34 @@ function validateDataCollectionAnswers(
   }
 }
 
-async function callOpenRouterApi(
-  prompt: string,
-): Promise<{ choices: Array<{ message: { content: string } }> } | null> {
-  try {
-    const apiKey = await getOpenRouterApiKey();
-    if (!apiKey) {
-      console.error(
-        "[background] OpenRouter API key not found. Please set it in chrome.storage.local with key 'openRouterApiKey'",
-      );
-      return null;
-    }
 
-    const response = await fetch(OPENROUTER_API_URL, {
+
+async function callAIWorker(
+  type: "dataCollection" | "usageAndSharing",
+  prompt: string,
+): Promise<string | null> {
+  try {
+    const userId = chrome.runtime.id; // stable, per-install
+
+    const res = await fetch(WORKER_URL, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "HTTP-Referer": chrome.runtime.getURL(""),
-        "X-Title": "Privacy Lens",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: OPENROUTER_MODEL,
-        messages: [
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId, type, prompt }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        "[background] OpenRouter API error:",
-        response.status,
-        errorText,
-      );
+    if (!res.ok) {
+      console.error("[background] Worker error", res.status);
       return null;
     }
 
-    const data = await response.json();
-    return data;
+    const data = await res.json();
+    return data.content || null;
   } catch (err) {
-    console.error("[background] Error calling OpenRouter API:", err);
+    console.error("[background] Worker call failed", err);
     return null;
   }
 }
+
 
 async function analyzeDataCollection(policyText: string) {
   // Get tab info once at the start for use throughout the function
@@ -301,18 +277,9 @@ async function analyzeDataCollection(policyText: string) {
       policyTextLength: policyText.length,
     });
 
-    const rawResponse = await callOpenRouterApi(prompt);
-    if (!rawResponse) {
-      throw new Error("Failed to get response from OpenRouter API");
-    }
-
-    const rawContent: string =
-      rawResponse?.choices[0]?.message?.content || "";
-
-    if (!rawContent) {
-      console.error("[background] Empty response from data collection API");
-      return;
-    }
+    const rawContent = await callAIWorker("dataCollection", prompt);
+    if (!rawContent) throw new Error("AI failed");
+    
 
     console.log("[background] Raw AI response:", rawContent);
 
@@ -393,12 +360,12 @@ async function analyzeUsageAndSharing(policyText: string) {
       policyTextLength: policyText.length,
     });
 
-    const rawResponse = await callOpenRouterApi(prompt);
-    if (!rawResponse) {
-      throw new Error("Failed to get response from OpenRouter API");
-    }
 
-    const rawContent: string = rawResponse?.choices[0]?.message?.content || "";
+
+    const rawContent = await callAIWorker("usageAndSharing", prompt);
+if (!rawContent) throw new Error("AI failed");
+
+
 
     const cleanedContent = cleanJsonResponse(rawContent);
     if (!cleanedContent) {

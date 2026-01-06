@@ -1,0 +1,19 @@
+/**
+ * For more details on how to configure Wrangler, refer to:
+ * https://developers.cloudflare.com/workers/wrangler/configuration/
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "privacy-lens",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-01-03",
+	"observability": {
+		"enabled": true
+	},
+	"kv_namespaces": [
+    {
+      "binding": "USAGE_TRACKER",
+      "id": "5eb1b20f20b64cd3ac277dfafa115782"
+    }
+  ]
+}
