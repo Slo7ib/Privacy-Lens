@@ -55,7 +55,7 @@ export interface Env {
 		  "X-Title": "Privacy Lens",
 		},
 		body: JSON.stringify({
-		  model: "mistralai/mistral-nemo",
+		  model: "google/gemini-2.5-flash-lite",
 		  messages: [{ role: "user", content: prompt }],
 		}),
 	  });
