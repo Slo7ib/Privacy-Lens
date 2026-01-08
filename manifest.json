@@ -23,7 +23,7 @@
       "js": ["src/extension/contentScript.ts"]
     }
   ],
-  "host_permissions": ["<all_urls>", "https://openrouter.ai/*"],
+  "host_permissions": ["https://openrouter.ai/*", "https://privacy-lens.slo7i-b-sb.workers.dev/*"],
   "background": {
     "service_worker": "src/extension/background.ts",
     "type": "module"
