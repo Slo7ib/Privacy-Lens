@@ -1,6 +1,7 @@
 import { DataSharing } from "../DataSharing/DataSharing";
 import { DataCollectionIcons } from "../DataCollectionIcons/DataCollectionIcons";
 import { sections } from "../../types/sections";
+import { Donation } from "../DonationBox/Donation";
 
 export function DataCollectionCards() {
   return (
@@ -35,8 +36,10 @@ export function DataCollectionCards() {
         <div className="mb-1.5 rounded-2xl border border-white/20 bg-white/0 p-4 text-gray-100 shadow-xl backdrop-blur-md backdrop-brightness-50 backdrop-contrast-100">
           <DataSharing />
         </div>
+        <div className="mb-1.5 rounded-2xl border border-white/20 bg-white/0 p-4 text-gray-100 shadow-xl backdrop-blur-md backdrop-brightness-50 backdrop-contrast-100">
+          <Donation />
+        </div>
       </div>
     </div>
   );
 }
-

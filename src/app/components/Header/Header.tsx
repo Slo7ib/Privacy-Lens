@@ -1,14 +1,22 @@
 export function Header() {
   return (
     <header className="flex justify-center">
-      <img
-        className="size-16 justify-center self-center"
-        src="/src/extension/assets/icon-128.png"
-        alt=""
-      />
-      <h1 className="glow-text p-3.5 text-center text-3xl font-medium tracking-wider text-nowrap text-cyan-300">
-        Privacy Lens
-      </h1>
+      <a
+        className="flex"
+        title="Visit our website"
+        href="https://slo7ib.github.io/PrivacyLensSite/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          className="size-16 justify-center self-center"
+          src="/src/extension/assets/icon-128.png"
+          alt=""
+        />
+        <h1 className="glow-text p-3.5 text-center text-3xl font-medium tracking-wider text-nowrap text-cyan-300">
+          Privacy Lens
+        </h1>
+      </a>
     </header>
   );
 }
