@@ -182,13 +182,6 @@ export function policyFinder() {
     url: foundElement instanceof HTMLAnchorElement ? foundElement.href : "",
   };
 
-  console.log(
-    "[policyFinder] Top 3 candidates:",
-    scoredLinks.slice(0, 3).map((l) => ({
-      text: l.text,
-      score: l.score,
-    })),
-  );
 
   return result;
 }

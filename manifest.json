@@ -14,16 +14,15 @@
     "48": "src/extension/assets/icon-48.png",
     "128": "src/extension/assets/icon-128.png"
   },
-
-  "permissions": ["activeTab", "scripting", "storage"],
-
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["src/extension/contentScript.ts"]
-    }
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
   ],
-  "host_permissions": ["https://openrouter.ai/*", "https://privacy-lens.slo7i-b-sb.workers.dev/*"],
+  "host_permissions": [
+    "https://openrouter.ai/*",
+    "https://privacy-lens.slo7i-b-sb.workers.dev/*"
+  ],
   "background": {
     "service_worker": "src/extension/background.ts",
     "type": "module"
