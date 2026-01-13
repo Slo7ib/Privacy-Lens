@@ -1,7 +1,7 @@
-import { RatingBox } from "./app/components/RatingBox/RatingBox";
-import { Header } from "./app/components/Header/Header";
-import { DataCollectionCards } from "./app/components/DataCollectionCards/DataCollectionCards";
-import { usePrivacyScan } from "./app/hooks/usePrivacyScan";
+import { RatingBox } from "@/popup/components/RatingBox/RatingBox";
+import { Header } from "@/popup/components/Header/Header";
+import { DataCollectionCards } from "@/popup/components/DataCollectionCards/DataCollectionCards";
+import { usePrivacyScan } from "@/popup/hooks/usePrivacyScan";
 
 const App = () => {
   const { scan, loading, hasScanned } = usePrivacyScan();

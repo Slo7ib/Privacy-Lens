@@ -13,7 +13,7 @@ export const IconCircle = React.memo<IconCircleProps>(({ icon, label }) => {
       </div>
 
       {label ? (
-        <span className="mt-2 h-4 -translate-y-1 transform text-xs text-gray-100 transition duration-200 group-hover:translate-y-0 group-hover:opacity-100">
+        <span className="mt-2 h-4 -translate-y-1 transform text-xs text-gray-100 transition duration-200 group-hover:translate-y-0">
           {label}
         </span>
       ) : null}

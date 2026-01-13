@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import type { CollectedCategory } from "../../logic/dataCategories";
-import { dataCollectionItems } from "../../logic/dataCategories";
+import type { CollectedCategory } from "@/shared/logic/dataCategories";
+import { dataCollectionItems } from "@/shared/logic/dataCategories";
 
 export function useDataCollection() {
   const [categories, setCategories] = useState<CollectedCategory[]>([]);

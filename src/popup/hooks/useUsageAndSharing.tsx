@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { AIStorageState } from "../types/AIStorageState";
+import type { AIStorageState } from "@/shared/types/AIStorageState";
 
 export function useUsageAndSharing() {
   const [usageState, setUsageState] = useState<AIStorageState | null>(null);

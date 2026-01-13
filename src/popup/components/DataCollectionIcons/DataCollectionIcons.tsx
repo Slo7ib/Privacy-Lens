@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
-import { IconCircle } from "../IconCircle/IconCircle";
-import { useDataCollection } from "../../hooks/useDataCollection";
-import { SkeletonCard } from "../SkeletonCard/SkeletonCard";
+import { IconCircle } from "@/popup/components/IconCircle/IconCircle";
+import { useDataCollection } from "@/popup/hooks/useDataCollection";
+import { SkeletonCard } from "@/popup/components/SkeletonCard/SkeletonCard";
 
 interface DataCollectionIconsProps {
   section: string;

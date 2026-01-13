@@ -1,7 +1,7 @@
 import { useMemo } from "react";
-import { useDataCollection } from "./useDataCollection";
-import { useUsageAndSharing } from "./useUsageAndSharing";
-import { calculatePrivacyRating } from "../../logic/calculateRating";
+import { useDataCollection } from "@/popup/hooks/useDataCollection";
+import { useUsageAndSharing } from "@/popup/hooks/useUsageAndSharing";
+import { calculatePrivacyRating } from "@/shared/logic/calculateRating";
 
 export function usePrivacyRating() {
   const { categories, loading: dataLoading } = useDataCollection();

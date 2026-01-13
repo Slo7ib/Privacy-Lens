@@ -1,4 +1,4 @@
-import type { SectionName } from "../app/types/sections";
+import type { SectionName } from "@/shared/types/sections";
 import type { LucideIcon } from "lucide-react";
 import {
   Phone,
@@ -142,7 +142,7 @@ export const dataCollectionItems: CollectedCategory[] = [
     section: "Personal Identifiers",
     question:
       "Does the privacy policy indicate that the website collects or stores biometric data such as fingerprints, face scans, or other biometric identifiers?",
-  },{
+  }, {
     key: 15,
     element: "Location Data",
     collected: false,

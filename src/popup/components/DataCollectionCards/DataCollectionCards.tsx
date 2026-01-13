@@ -1,7 +1,7 @@
-import { DataSharing } from "../DataSharing/DataSharing";
-import { DataCollectionIcons } from "../DataCollectionIcons/DataCollectionIcons";
-import { sections } from "../../types/sections";
-import { Donation } from "../DonationBox/Donation";
+import { DataSharing } from "@/popup/components/DataSharing/DataSharing";
+import { DataCollectionIcons } from "@/popup/components/DataCollectionIcons/DataCollectionIcons";
+import { sections } from "@/shared/types/sections";
+import { Donation } from "@/popup/components/DonationBox/Donation";
 
 export function DataCollectionCards() {
   return (

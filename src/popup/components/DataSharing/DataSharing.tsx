@@ -1,5 +1,5 @@
-import { SkeletonLine } from "../SkeletonCard/SkeletonCard";
-import { useUsageAndSharing } from "../../hooks/useUsageAndSharing";
+import { SkeletonLine } from "@/popup/components/SkeletonCard/SkeletonCard";
+import { useUsageAndSharing } from "@/popup/hooks/useUsageAndSharing";
 
 export function DataSharing() {
   const usageState = useUsageAndSharing();

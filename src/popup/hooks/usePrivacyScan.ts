@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { policyFinder } from "../../logic/policyFinder";
+import { policyFinder } from "@/shared/logic/policyFinder";
 
 export function usePrivacyScan() {
   const [loading, setLoading] = useState(false);

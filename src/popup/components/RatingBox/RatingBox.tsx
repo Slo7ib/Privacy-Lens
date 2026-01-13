@@ -1,4 +1,4 @@
-import { usePrivacyRating } from "../../hooks/usePrivacyRating";
+import { usePrivacyRating } from "@/popup/hooks/usePrivacyRating";
 
 interface RatingBoxProps {
   scan: () => Promise<void>;

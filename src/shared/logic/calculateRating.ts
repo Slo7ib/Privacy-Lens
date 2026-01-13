@@ -1,4 +1,4 @@
-import type { CollectedCategory } from "./dataCategories";
+import type { CollectedCategory } from "@/shared/logic/dataCategories";
 
 export type PrivacyRating = "A" | "B" | "C" | "D" | "F";
 
@@ -16,7 +16,7 @@ const SENSITIVITY_WEIGHTS: Record<string, number> = {
   "Account Credentials": 12,
   "Contact List": 12,
   "Calendar Access": 12,
-  
+
   // Medium sensitivity - medium penalty
   "Personal Information": 8,
   "Phone Number": 7,
@@ -24,7 +24,7 @@ const SENSITIVITY_WEIGHTS: Record<string, number> = {
   "Location Data": 8,
   "User-Submitted Content": 7,
   "Customer Support Communications": 5,
-  
+
   // Lower sensitivity - light penalty
   "IP Address": 4,
   "Device Type": 3,
@@ -63,7 +63,7 @@ export function calculatePrivacyRating(
 
   // Calculate penalties based on collected data
   const collectedItems = categories.filter((cat) => cat.collected);
-  
+
   for (const item of collectedItems) {
     const penalty = SENSITIVITY_WEIGHTS[item.element] || 5; // Default penalty for unknown items
     score -= penalty;

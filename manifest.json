@@ -1,18 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "Privacy Lens",
+  "name": "Privacy Lens - What Sites Collect",
   "version": "1.0.0",
-  "description": "This tool will analyze the privacy policy for websites you visit and summarize it so that you know what data gets collected from you.",
+  "description": "Instant AI summaries of privacy policies see exactly what data sites collect & share, with simple icons & plain English. Take back control!",
   "action": {
     "default-title": "Privacy Lens",
     "default_popup": "index.html",
-    "default_icon": "src/extension/assets/icon-128.png"
+    "default_icon": "src/shared/assets/icon-128.png"
   },
   "icons": {
-    "16": "src/extension/assets/icon-16.png",
-    "32": "src/extension/assets/icon-32.png",
-    "48": "src/extension/assets/icon-48.png",
-    "128": "src/extension/assets/icon-128.png"
+    "16": "src/shared/assets/icon-16.png",
+    "32": "src/shared/assets/icon-32.png",
+    "48": "src/shared/assets/icon-48.png",
+    "128": "src/shared/assets/icon-128.png"
   },
   "permissions": [
     "activeTab",
@@ -24,7 +24,7 @@
     "https://privacy-lens.slo7i-b-sb.workers.dev/*"
   ],
   "background": {
-    "service_worker": "src/extension/background.ts",
+    "service_worker": "src/background/index.ts",
     "type": "module"
   }
 }

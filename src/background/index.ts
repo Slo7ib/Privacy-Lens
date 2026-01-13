@@ -1,6 +1,6 @@
-import type { AIStorageState } from "../app/types/AIStorageState";
-import { extractText } from "../logic/extractText";
-import { dataCollectionItems } from "../logic/dataCategories";
+import type { AIStorageState } from "@/shared/types/AIStorageState";
+import { extractText } from "@/shared/logic/extractText";
+import { dataCollectionItems } from "@/shared/logic/dataCategories";
 
 const WORKER_URL = "https://privacy-lens.slo7i-b-sb.workers.dev";
 
@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
     try {
       sendResponse({ status: "ok" });
-    } catch {}
+    } catch { }
 
     (async () => {
       console.log("[background] Received policy data", data);
@@ -279,7 +279,7 @@ async function analyzeDataCollection(policyText: string) {
 
     const rawContent = await callAIWorker("dataCollection", prompt);
     if (!rawContent) throw new Error("AI failed");
-    
+
 
     console.log("[background] Raw AI response:", rawContent);
 
@@ -363,7 +363,7 @@ async function analyzeUsageAndSharing(policyText: string) {
 
 
     const rawContent = await callAIWorker("usageAndSharing", prompt);
-if (!rawContent) throw new Error("AI failed");
+    if (!rawContent) throw new Error("AI failed");
 
 
 
