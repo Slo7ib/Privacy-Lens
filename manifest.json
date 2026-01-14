@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Instant AI summaries of privacy policies see exactly what data sites collect & share, with simple icons & plain English. Take back control!",
   "action": {
-    "default-title": "Privacy Lens",
+    "default_title": "Privacy Lens",
     "default_popup": "index.html",
     "default_icon": "src/shared/assets/icon-128.png"
   },
