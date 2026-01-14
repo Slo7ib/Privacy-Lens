@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Privacy Lens - What Sites Collect",
+  "name": "Privacy Lens - What Data Websites Collect From You",
   "version": "1.0.0",
-  "description": "Instant AI summaries of privacy policies see exactly what data sites collect & share, with simple icons & plain English. Take back control!",
+  "description": "Instant AI summaries of privacy policies see what data sites collect & share, with simple icons & plain English. Take back control",
   "action": {
     "default_title": "Privacy Lens",
     "default_popup": "index.html",
