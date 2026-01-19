@@ -30,7 +30,8 @@ export function usePrivacyRating() {
   }, [categories, usageState]);
 
   const loading = dataLoading || usageState?.status === "loading";
+  const error = usageState?.status === "error" ? usageState : null;
 
-  return { rating, loading };
+  return { rating, loading, error };
 }
 

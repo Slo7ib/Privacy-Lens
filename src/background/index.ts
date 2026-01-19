@@ -1,4 +1,5 @@
 import type { AIStorageState } from "@/shared/types/AIStorageState";
+import type { AIWorkerResult, AIErrorCode } from "@/shared/types/errors";
 import { extractText } from "@/shared/logic/extractText";
 import { dataCollectionItems } from "@/shared/logic/dataCategories";
 
@@ -226,26 +227,86 @@ function validateDataCollectionAnswers(
 async function callAIWorker(
   type: "dataCollection" | "usageAndSharing",
   prompt: string,
-): Promise<string | null> {
+): Promise<AIWorkerResult> {
   try {
     const userId = chrome.runtime.id; // stable, per-install
 
-    const res = await fetch(WORKER_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, type, prompt }),
-    });
-
-    if (!res.ok) {
-      console.error("[background] Worker error", res.status);
-      return null;
+    let res;
+    try {
+      res = await fetch(WORKER_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, type, prompt }),
+      });
+    } catch (netErr) {
+      console.error("[background] Network error calling worker", netErr);
+      return {
+        ok: false,
+        error: {
+          code: "NETWORK_ERROR",
+          message: "Could not connect to the AI server. Please check your internet connection."
+        }
+      };
     }
 
-    const data = await res.json();
-    return data.content || null;
-  } catch (err) {
-    console.error("[background] Worker call failed", err);
-    return null;
+    const data = await res.json().catch(() => null);
+
+    // Map HTTP 429 explicitly if the worker didn't return a JSON body for some reason, 
+    // but our new worker always returns JSON.
+    if (res.status === 429) {
+      return {
+        ok: false,
+        error: {
+          code: "RATE_LIMITED",
+          message: "You have reached your daily limit. Please try again tomorrow.",
+          details: data?.requestId
+        }
+      };
+    }
+
+    if (!res.ok) {
+      console.error("[background] Worker returned error status", res.status, data);
+
+      let code: AIErrorCode = "WORKER_ERROR";
+      const workerCode = data?.error?.code;
+
+      if (workerCode === "OPENROUTER_ERROR") code = "OPENROUTER_ERROR";
+      else if (workerCode === "AI_FAILED") code = "AI_INVALID_RESPONSE";
+      else if (workerCode === "INVALID_JSON") code = "JSON_PARSE_ERROR";
+
+      return {
+        ok: false,
+        error: {
+          code,
+          message: data?.error?.message || `Server error: ${res.status}`,
+          details: data?.requestId
+        }
+      };
+    }
+
+    if (!data || !data.content) {
+      return {
+        ok: false,
+        error: {
+          code: "AI_INVALID_RESPONSE",
+          message: "The AI server returned an empty response.",
+          details: data?.requestId
+        }
+      };
+    }
+
+    return { ok: true, content: data.content };
+
+  } catch (err: any) {
+    console.error("[background] Unexpected error in callAIWorker", err);
+    return {
+      ok: false,
+      error: {
+        code: "UNKNOWN",
+        message: "An unexpected error occurred.",
+        details: err.message
+      }
+    };
   }
 }
 
@@ -277,10 +338,41 @@ async function analyzeDataCollection(policyText: string) {
       policyTextLength: policyText.length,
     });
 
-    const rawContent = await callAIWorker("dataCollection", prompt);
-    if (!rawContent) throw new Error("AI failed");
+    const result = await callAIWorker("dataCollection", prompt);
+    if (!result.ok) {
+      console.error("[background] AI analysis failed", result.error);
 
+      // Fallback logic on error? 
+      // Requirement: "All failures: Set a storage state with status: "error" ... Keep fallback answers, but only after storing the error state."
+      // Actually, the requirements say: "Keep fallback answers, but only after storing the error state."
+      // This implies we should show the error state, but maybe populate fallback answers too? 
+      // The UI logic likely reads `dataCollectionAnswers`.
+      // If I set `dataCollectionLoading: false` (implied by ending), the UI will look for answers.
+      // But I should also set an error state if the UI has a place for it.
+      // The UI for data collection might not have a dedicated error field in `AIStorageState` because `AIStorageState` is used for `aiUsageResult`.
+      // Looking at `src/background/index.ts`, `analyzeUsageAndSharing` uses `aiUsageResult`.
+      // `analyzeDataCollection` updates `dataCollectionAnswers`.
+      // The user requirement says: "For both... Set a storage state with status: "error"..." 
+      // But `dataCollection` stores "answers" which is an array.
+      // I might need to add an error state for data collection too?
+      // The prompt says: "Refactor existing codebase... Introduce explicit error types... Ensure every failure case is communicated back... UI can tell the difference..."
+      // "All failures: Set a storage state with status: "error"..."
+      // Currently `dataCollectionAnswers` is just `Array`. 
+      // I probably need to introduce `dataCollectionError` or similar in storage, OR change how it's stored.
+      // Existing code 319-332 sets fallback answers on error.
+      // The requirement says "Keep fallback answers, but only after storing the error state."
+      // So I will set an error flag in storage, AND set the fallback answers.
 
+      chrome.storage.local.set({
+        dataCollectionError: result.error,
+        dataCollectionLoading: false
+      });
+
+      // Proceed to fallback
+      throw new Error(`AI Error: ${result.error.code}`);
+    }
+
+    const rawContent = result.content;
     console.log("[background] Raw AI response:", rawContent);
 
     const cleanedContent = cleanJsonResponse(rawContent);
@@ -324,6 +416,7 @@ async function analyzeDataCollection(policyText: string) {
     chrome.storage.local.set({
       dataCollectionAnswers: fallbackAnswers,
       dataCollectionUrl: currentTabUrl,
+      dataCollectionLoading: false, // Ensure loading is stopped
     });
 
     chrome.runtime.sendMessage({
@@ -362,8 +455,21 @@ async function analyzeUsageAndSharing(policyText: string) {
 
 
 
-    const rawContent = await callAIWorker("usageAndSharing", prompt);
-    if (!rawContent) throw new Error("AI failed");
+    const result = await callAIWorker("usageAndSharing", prompt);
+
+    if (!result.ok) {
+      chrome.storage.local.set({
+        aiUsageResult: {
+          status: "error",
+          message: result.error.message,
+          code: result.error.code,
+          details: result.error.details
+        } satisfies AIStorageState,
+      });
+      return;
+    }
+
+    const rawContent = result.content;
 
 
 
