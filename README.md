@@ -1,2 +1,4 @@
-# TOS-Summarizer
-Summarize all the terms and conditions and know your rights
+Update:
+- fix the decription to get better SEO, consult reddit and chatgpt
+- add sharing extension btn
+- Make the extension have the usage and sharing section to be only after subscription (ask cahtgpt)
