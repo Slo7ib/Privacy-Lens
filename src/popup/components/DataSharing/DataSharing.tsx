@@ -1,60 +1,27 @@
-import { SkeletonLine } from "@/popup/components/SkeletonCard/SkeletonCard";
-import { useUsageAndSharing } from "@/popup/hooks/useUsageAndSharing";
+import { usePremiumStatus } from "@/popup/hooks/usePremiumStatus";
+import { DataSharingContent } from "./DataSharingContent";
+import { DataSharingLocked } from "./DataSharingLocked";
 
 export function DataSharing() {
-  const usageState = useUsageAndSharing();
+  const { isPremium, loading } = usePremiumStatus();
 
-  const isLoading = usageState?.status === "loading";
-  const isReady = usageState?.status === "ready";
-  const isError = usageState?.status === "error";
-
-  return (
-    <>
-      <h2 className="glow-text mb-5 flex items-center justify-center gap-2 text-xl font-medium text-cyan-300">
-        🔁 Usage & Sharing
-      </h2>
-      <div className="flex flex-col p-3">
-        <h3 className="mb-2 text-center text-xl font-medium">Usage</h3>
-        <div className="flex w-full flex-col gap-2 text-sm">
-          {isLoading ? (
-            <SkeletonLine />
-          ) : isReady ? (
-            <p className="text-base leading-relaxed font-extralight text-yellow-300">
-              {usageState.data.usage}
-            </p>
-          ) : isError ? (
-            <p className="text-base font-extralight text-red-300">
-              {usageState.message}
-            </p>
-          ) : (
-            <p className="text-base font-extralight text-yellow-300">
-              Waiting for data...
-            </p>
-          )}
+  // Optionally, show a loader while checking premium status
+  // For now, we default to showing 'Locked' while loading to prevent flashing content?
+  // Or show content while loading?
+  // Given local storage is fast, a small flicker might occur.
+  // Let's just render based on state. If loading, maybe show nothing or a skeleton?
+  // For simplicity and better UX, let's wait for loading.
+  if (loading) {
+    return (
+      <div className="flex flex-col p-3 animate-pulse">
+        <div className="h-6 w-1/3 bg-gray-700/50 rounded mb-4 mx-auto"></div>
+        <div className="space-y-3">
+          <div className="h-4 w-full bg-gray-700/50 rounded"></div>
+          <div className="h-4 w-full bg-gray-700/50 rounded"></div>
         </div>
       </div>
+    );
+  }
 
-      <div className="flex flex-col p-3">
-        <h3 className="mb-2 text-center text-xl font-medium">Sharing</h3>
-        <div className="flex w-full flex-col gap-2 text-sm">
-          {isLoading ? (
-            <SkeletonLine />
-          ) : isReady ? (
-            <p className="text-base leading-relaxed font-extralight text-yellow-300">
-              {usageState.data.sharing}
-            </p>
-          ) : isError ? (
-            <p className="text-base font-extralight text-red-300">
-              {usageState.message}
-            </p>
-          ) : (
-            <p className="text-base font-extralight text-yellow-300">
-              Waiting for data...
-            </p>
-          )}
-        </div>
-      </div>
-    </>
-  );
+  return isPremium ? <DataSharingContent /> : <DataSharingLocked />;
 }
-
