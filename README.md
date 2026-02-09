@@ -6,7 +6,7 @@ Update:
 Lemon API (test): in dashboard
 Varient id (test): 1288055
 checkout url (same): https://privacylens.lemonsqueezy.com/checkout
-
+---------------------
 You are implementing Lemon Squeezy subscription licensing for my Chrome extension.
 Goal:
 Split the extension into two parts:
@@ -17,15 +17,15 @@ Only PRO requires subscription.
 
 We will use Lemon Squeezy license keys to unlock PRO features.
 
-IMPORTANT ARCHITECTURE RULES:
+IMPORTANT RULES:
 - NEVER call Lemon Squeezy directly from the extension
 - ALL license validation must go through the Cloudflare Worker
 - API keys must ONLY live in Worker secrets
 
+i have already added my lemon squeezy API key and product variant ID to my worker secrets, the API key is called (LEMON_SQUEEZY_API_KEY) and the variant ID *testmode* is called (varient_Id). as for my checkout page url its: https://privacylens.lemonsqueezy.com/checkout 
 ========================
 WHAT TO IMPLEMENT
 ========================
-
 PART 1 — Cloudflare Worker
 
 Create endpoints:
@@ -44,10 +44,9 @@ POST /check-license
 - used for background checks
 
 Use environment secrets:
-- LEMON_API_KEY
-- LEMON_VARIANT_ID
+- LEMON_SQUEEZY_API_KEY
+- varient_Id
 
-Do NOT expose these to client.
 
 ========================
 
@@ -93,9 +92,10 @@ Buttons:
 [ Upgrade to Pro ] → open Lemon checkout URL
 [ Enter License ] → modal input
 
-Do NOT block scanning.
+
 Always show free results first.
-Only gate the PRO section.
+Only scan for the AI summary after user is a pro member, if not only scan for the icons part.
+very important: keep the current design for the usage and sharing part and re-use it for the premium version
 
 ========================
 
@@ -106,15 +106,12 @@ UX RULES
 - instant unlock
 - no login system
 - no accounts
-- works offline after activation
-
 ========================
 
 Security Rules
 
 - no API keys in extension
 - all Lemon calls from worker only
-- do not trust client premium flags
 
 ========================
 
