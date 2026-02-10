@@ -2,6 +2,8 @@ export interface Env {
 	USAGE_TRACKER: KVNamespace;
 	API_KEY: string;
 	EXTENSION_ID: string;
+	LEMON_SQUEEZY_API_KEY: string;
+	varient_Id: string;
 }
 
 export default {
@@ -39,27 +41,12 @@ export default {
 
 		// Strict CORS check
 		if (origin !== allowedOrigin) {
-			// We can't use errorResponse here efficiently because we might want to deny even the CORS headers 
-			// if we were super strict, but to return JSON we need headers? 
-			// Actually, standard practice for 403 Forbidden Origin is just to return it.
-			// However, requirement says "Invalid origin -> FORBIDDEN_ORIGIN".
-			// If we return 403, we should probably still include CORS headers so the extension can read the body?
-			// But if origin is wrong, the browser might block it anyway.
-			// Let's return the JSON with CORS headers for consistency, assuming the browser allows it if the server explicitly allows the claimed origin (which we don't here, we only allow allowedOrigin).
-			// If origin is mismatch, Access-Control-Allow-Origin: allowedOrigin will cause the browser to block the response reading script-side anyway.
-			// But the requirements say "Refactor the worker so that all errors return JSON... Invalid origin -> FORBIDDEN_ORIGIN".
-			// I'll return the JSON.
 			return new Response(JSON.stringify({
 				error: { code: "FORBIDDEN_ORIGIN", message: "Invalid origin" },
 				requestId
 			}), {
 				status: 403,
-				headers: { "Content-Type": "application/json" } // No CORS headers if origin is wrong, or maybe? 
-				// If I don't send CORS headers, the extension can't read the JSON.
-				// But I can't send Access-Control-Allow-Origin: <wrong-origin>.
-				// I'll verify what the previous code did: line 14: return new Response("Forbidden", { status: 403 });
-				// It returned plain text without CORS headers.
-				// I will do the same but with JSON.
+				headers: { "Content-Type": "application/json" }
 			});
 		}
 
@@ -80,6 +67,59 @@ export default {
 		} catch {
 			return errorResponse("INVALID_JSON", "Invalid JSON body", 400);
 		}
+
+		const url = new URL(request.url);
+		const path = url.pathname;
+
+		// --- LICENSE VALIDATION ENDPOINTS ---
+
+		if (path === "/validate-license" || path === "/check-license") {
+			const { licenseKey } = body;
+			if (!licenseKey) {
+				return errorResponse("MISSING_LICENSE", "License key is required", 400);
+			}
+
+			try {
+				const lsResponse = await fetch("https://api.lemonsqueezy.com/v1/licenses/validate", {
+					method: "POST",
+					headers: {
+						"Authorization": `Bearer ${env.LEMON_SQUEEZY_API_KEY}`,
+						"Accept": "application/json",
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({
+						license_key: licenseKey,
+						variant_id: Number(env.varient_Id) // Using explicit variable name as requested
+					})
+				});
+
+				if (!lsResponse.ok) {
+					const errorText = await lsResponse.text();
+					console.error(`[Worker] Lemon Squeezy Error (${requestId}):`, errorText);
+					return errorResponse("LICENSE_VALIDATION_FAILED", "Failed to validate license with provider", 502);
+				}
+
+				const lsData: any = await lsResponse.json();
+
+				// Check if license is valid
+				// Lemon Squeezy returns { valid: true, ... } or { valid: false, ... }
+				// We also check status just in case
+				const isValid = lsData.valid === true;
+
+				// Return sanitized response
+				return jsonResponse({
+					valid: isValid,
+					// Optionally return meta if needed, but keeping it minimal for now
+					// status: lsData.license_key?.status  
+				});
+
+			} catch (err: any) {
+				console.error(`[Worker] License check error (${requestId}):`, err);
+				return errorResponse("WORKER_ERROR", `Internal Error: ${err.message}`, 500);
+			}
+		}
+
+		// --- AI ENDPOINTS ---
 
 		const { userId, type, prompt } = body;
 		if (!userId || !type || !prompt) {

@@ -10,10 +10,14 @@
 	"observability": {
 		"enabled": true
 	},
+	"vars": {
+		"EXTENSION_ID": "adblclodjiklmgijkmegmejjihojjnpd",
+		"varient_Id": "1288055"
+	},
 	"kv_namespaces": [
-    {
-      "binding": "USAGE_TRACKER",
-      "id": "5eb1b20f20b64cd3ac277dfafa115782"
-    }
-  ]
+		{
+			"binding": "USAGE_TRACKER",
+			"id": "5eb1b20f20b64cd3ac277dfafa115782"
+		}
+	]
 }

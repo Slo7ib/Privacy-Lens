@@ -1,14 +1,27 @@
 import { useState } from "react";
 import { SkeletonLine } from "@/popup/components/SkeletonCard/SkeletonCard";
+import { LicenseManager } from "@/popup/services/LicenseManager";
 
 // License Modal Component
-function LicenseModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (license: string) => void }) {
+function LicenseModal({ onClose, onActivate }: { onClose: () => void; onActivate: () => void }) {
     const [license, setLicense] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (license.trim()) {
-            onSubmit(license.trim());
+        if (!license.trim()) return;
+
+        setIsLoading(true);
+        setError(null);
+
+        const result = await LicenseManager.activateLicense(license.trim());
+
+        if (result.success) {
+            onActivate(); // Will trigger parent to close and refresh state
+        } else {
+            setError(result.error || "Invalid license");
+            setIsLoading(false);
         }
     };
 
@@ -33,19 +46,26 @@ function LicenseModal({ onClose, onSubmit }: { onClose: () => void; onSubmit: (l
                         className="rounded-lg border border-cyan-500/30 bg-gray-800 px-4 py-3 text-white placeholder-gray-500 focus:border-cyan-500 focus:outline-none"
                         autoFocus
                     />
+
+                    {error && (
+                        <p className="text-red-400 text-sm px-1">{error}</p>
+                    )}
+
                     <div className="flex gap-3">
                         <button
                             type="button"
                             onClick={onClose}
                             className="flex-1 rounded-lg border border-gray-600 px-4 py-2 font-medium text-gray-300 transition-all hover:bg-gray-800"
+                            disabled={isLoading}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 rounded-lg bg-cyan-500 px-4 py-2 font-medium text-black transition-all hover:bg-cyan-400"
+                            className="flex-1 rounded-lg bg-cyan-500 px-4 py-2 font-medium text-black transition-all hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                            disabled={isLoading}
                         >
-                            Activate
+                            {isLoading ? "Activating..." : "Activate"}
                         </button>
                     </div>
                 </form>
@@ -58,18 +78,12 @@ export function DataSharingLocked() {
     const [showLicenseModal, setShowLicenseModal] = useState(false);
 
     const handleUpgrade = () => {
-        // Placeholder for payment integration
-        alert("Opening Lemon Squeezy checkout...");
-        // window.open("https://your-lemonsqueezy-checkout-url.com", "_blank");
+        window.open("https://privacylens.lemonsqueezy.com/checkout/buy/4649b1c0-86dd-432b-b54d-b352f443d231", "_blank");
     };
 
-    const handleLicenseSubmit = (license: string) => {
-        // Placeholder for license validation
-        alert(`License submitted: ${license}`);
-        console.log("License submitted:", license);
-        // Determine if we should set premium locally for testing
-        // For now, let's just close the modal
+    const handleActivationSuccess = () => {
         setShowLicenseModal(false);
+        // State updates automatically via storage listener in usePremiumStatus hook
     };
 
     return (
@@ -123,7 +137,7 @@ export function DataSharingLocked() {
             {showLicenseModal && (
                 <LicenseModal
                     onClose={() => setShowLicenseModal(false)}
-                    onSubmit={handleLicenseSubmit}
+                    onActivate={handleActivationSuccess}
                 />
             )}
         </>

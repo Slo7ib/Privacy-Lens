@@ -2,9 +2,16 @@ import { RatingBox } from "@/popup/components/RatingBox/RatingBox";
 import { Header } from "@/popup/components/Header/Header";
 import { DataCollectionCards } from "@/popup/components/DataCollectionCards/DataCollectionCards";
 import { usePrivacyScan } from "@/popup/hooks/usePrivacyScan";
+import { useEffect } from "react";
+import { LicenseManager } from "@/popup/services/LicenseManager";
 
 const App = () => {
   const { scan, loading, hasScanned } = usePrivacyScan();
+
+  useEffect(() => {
+    // Check license status on popup open (implementation handles 7-day interval)
+    LicenseManager.checkLicenseStatus();
+  }, []);
 
   return (
     <main className="bg-linear-to-r from-[#030c5c] to-[#004e92]">
