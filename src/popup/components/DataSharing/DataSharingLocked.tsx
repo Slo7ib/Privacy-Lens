@@ -55,14 +55,14 @@ function LicenseModal({ onClose, onActivate }: { onClose: () => void; onActivate
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 rounded-lg border border-gray-600 px-4 py-2 font-medium text-gray-300 transition-all hover:bg-gray-800"
+                            className="flex-1 cursor-pointer rounded-lg border border-gray-600 px-4 py-2 font-medium text-gray-300 transition-all hover:bg-gray-800"
                             disabled={isLoading}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 rounded-lg bg-cyan-500 px-4 py-2 font-medium text-black transition-all hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="flex-1 cursor-pointer rounded-lg bg-cyan-500 px-4 py-2 font-medium text-black transition-all hover:bg-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isLoading}
                         >
                             {isLoading ? "Activating..." : "Activate"}
@@ -113,21 +113,49 @@ export function DataSharingLocked() {
 
                 {/* Overlay with CTA */}
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 rounded-xl bg-black/40 backdrop-blur-[2px] p-4">
-                    <p className="text-center text-sm font-medium text-cyan-300">
-                        Unlock full data sharing and tracking analysis
-                    </p>
+                    {/* Eye-catching icon/badge */}
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 shadow-lg shadow-cyan-500/30">
+                        <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+
+                    {/* Headline */}
+                    <div className="text-center space-y-1">
+                        <p className="text-base font-bold text-cyan-300">
+                            Unlock AI Insights
+                        </p>
+                        <p className="text-xs text-cyan-100/80 leading-relaxed px-2">
+                            Get instant AI summaries on how your data is used & shared
+                        </p>
+                    </div>
+
+                    {/* Feature comparison */}
+                    <div className="flex items-center gap-3 text-xs">
+                        <div className="text-center">
+                            <div className="text-cyan-100/60 font-medium mb-0.5">Free</div>
+                            <div className="text-cyan-100/80">Icons only</div>
+                        </div>
+                        <div className="text-cyan-500">→</div>
+                        <div className="text-center">
+                            <div className="text-cyan-300 font-semibold mb-0.5">Pro</div>
+                            <div className="text-cyan-300">Icons + AI</div>
+                        </div>
+                    </div>
+
+                    {/* CTA Buttons */}
                     <div className="flex flex-col gap-2 w-full max-w-[200px]">
                         <button
                             onClick={handleUpgrade}
-                            className="w-full rounded-lg bg-cyan-500 px-4 py-2 text-sm font-medium text-black transition-all hover:bg-cyan-400 hover:shadow-lg hover:shadow-cyan-500/50"
+                            className="w-full cursor-pointer rounded-lg bg-gradient-to-r from-cyan-500 to-cyan-600 px-4 py-2.5 text-sm font-semibold text-black transition-all hover:from-cyan-400 hover:to-cyan-500 hover:shadow-lg hover:shadow-cyan-500/50 hover:scale-[1.02]"
                         >
                             Upgrade to Pro
                         </button>
                         <button
                             onClick={() => setShowLicenseModal(true)}
-                            className="w-full rounded-lg border border-cyan-500 px-4 py-2 text-sm font-medium text-cyan-300 transition-all hover:bg-cyan-500/10"
+                            className="w-full cursor-pointer rounded-lg border border-cyan-500/50 px-4 py-2 text-xs font-medium text-cyan-300/90 transition-all hover:bg-cyan-500/10 hover:border-cyan-500"
                         >
-                            Enter License
+                            Already have a license?
                         </button>
                     </div>
                 </div>
