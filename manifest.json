@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Privacy Lens - See What Websites Track & Share",
-  "version": "2.0.0",
+  "version": "2.0.2",
   "description": "See what websites collect, track, and share about you. Instant AI privacy summaries with simple icons.",
   "action": {
     "default_title": "Privacy Lens",

@@ -78,7 +78,7 @@ export function DataSharingLocked() {
     const [showLicenseModal, setShowLicenseModal] = useState(false);
 
     const handleUpgrade = () => {
-        window.open("https://privacylens.lemonsqueezy.com/checkout/buy/4649b1c0-86dd-432b-b54d-b352f443d231", "_blank");
+        window.open("https://privacylens.lemonsqueezy.com/checkout/buy/c63ed65f-a580-43b1-bbbf-f1d26290d512", "_blank");
     };
 
     const handleActivationSuccess = () => {
