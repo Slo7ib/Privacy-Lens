@@ -445,6 +445,15 @@ async function analyzeUsageAndSharing(policyText: string) {
 
     if (!isPremium) {
       console.log("[background] User is not premium, skipping usage and sharing analysis");
+      chrome.storage.local.set({
+        aiUsageResult: {
+          status: "ready",
+          data: {
+            usage: "Requires premium for detailed analysis.",
+            sharing: "Requires premium for third-party sharing details.",
+          },
+        } satisfies AIStorageState,
+      });
       return;
     }
 

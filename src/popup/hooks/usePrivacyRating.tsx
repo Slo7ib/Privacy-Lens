@@ -30,7 +30,10 @@ export function usePrivacyRating() {
   }, [categories, usageState]);
 
   const loading = dataLoading || usageState?.status === "loading";
-  const error = usageState?.status === "error" ? usageState : null;
+  
+  // We no longer block the rating if usage tracking fails, because data collection falls back gracefully.
+  // This allows the website to be rated based on available data.
+  const error = null;
 
   return { rating, loading, error };
 }

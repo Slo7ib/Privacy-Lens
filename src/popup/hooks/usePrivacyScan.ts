@@ -55,6 +55,7 @@ export function usePrivacyScan() {
         hasScanned: true,
         scannedUrl: currentUrl,
         dataCollectionLoading: true,
+        aiUsageResult: { status: "loading" },
       });
 
       const [{ result }] = await chrome.scripting.executeScript({

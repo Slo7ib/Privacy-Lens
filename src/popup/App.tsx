@@ -18,7 +18,7 @@ const App = () => {
       <Header />
       <RatingBox scan={scan} loading={loading} hasScanned={hasScanned} />
       <p className="text-center text-xs text-red-400 px-4 mt-2">
-        Disclaimer: This summary is generated automatically and may not be fully
+        Disclaimer: The summary is generated automatically and may not be fully
         accurate. Always refer to the website’s original privacy policy for
         complete and up-to-date information.
       </p>
