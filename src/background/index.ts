@@ -27,10 +27,26 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
       if (data.url) {
         try {
-          const res = await fetch(data.url);
-          const rawHTML = await res.text();
-          html = rawHTML;
-          text = extractText(rawHTML);
+          try {
+            const res = await fetch(data.url);
+            html = await res.text();
+          } catch (directErr) {
+            console.log("[background] Direct fetch failed (likely CORS), falling back to proxy...");
+            const proxyRes = await fetch(`${WORKER_URL}/fetch-policy`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ url: data.url }),
+            });
+            if (!proxyRes.ok) {
+              throw new Error(`Proxy fetch failed with status: ${proxyRes.status}`);
+            }
+            const proxyData = await proxyRes.json();
+            if (proxyData.error) {
+              throw new Error(proxyData.error.message);
+            }
+            html = proxyData.html || "";
+          }
+          text = extractText(html);
         } catch (err) {
           console.error("Could not fetch policy:", err);
         }
